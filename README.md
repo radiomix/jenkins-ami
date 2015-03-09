@@ -19,4 +19,4 @@ We pull the docker containers "ubuntu 14.04" and "jenkins".
 We assume standard user ubuntu uses password ubuntu and use `execute_command` parameter.
 This example is take from [Packer](https://www.packer.io/docs/provisioners/shell.html)
  + `ubuntu-14.04-lts-jenkins-ami.json` This packer file bakes our jenkins docker AMI.
-
+ + `gopath.sh` This is the shell script adding the Go-Path to `/etc/profiles`
