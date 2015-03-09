@@ -15,8 +15,7 @@ We install our tools:
 We pull the docker containers "ubuntu 14.04" and "jenkins". 
 
 ## Files
- +`shell-rights.json`
-+ `shell-rights.json` This packer file explanes who to set sudo rights to a script as a provisioner.
+ + `shell-rights.json` This packer file explanes who to set sudo rights to a script as a provisioner.
 We assume standard user ubuntu uses password ubuntu and use `execute_command` parameter.
 This example is take from [Packer](https://www.packer.io/docs/provisioners/shell.html)
  + `ubuntu-14.04-lts-jenkins-ami.json` This packer file bakes our jenkins docker AMI.
