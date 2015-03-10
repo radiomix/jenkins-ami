@@ -10,7 +10,7 @@
     "secret_key": "{{user `aws_secret_key`}}",
     "region": "us-west-2",
     "source_ami": "ami-33143703",
-    "instance_type": "m1.micro",
+    "instance_type": "m3.medium",
     "ssh_username": "ubuntu",
     "tags": {
 	"Name": "jenkins-docker-ami{{timestamp}}"
