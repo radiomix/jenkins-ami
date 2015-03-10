@@ -9,8 +9,8 @@
     "access_key": "{{user `aws_access_key`}}",
     "secret_key": "{{user `aws_secret_key`}}",
     "region": "us-west-2",
-    "source_ami": "ami-31143701",
-    "instance_type": "t1.micro",
+    "source_ami": "ami-33143703",
+    "instance_type": "m1.micro",
     "ssh_username": "ubuntu",
     "tags": {
 	"Name": "jenkins-docker-ami{{timestamp}}"
@@ -37,21 +37,16 @@
       "sudo apt-get install -y python",
       "sudo apt-get install -y python-pip",
       "sudo apt-get install -y docker.io",
-      "which lynx mosh git vi wget unzip",
+      "which lynx mosh git vi wget unzip docker",
       "echo INSTALLING CHEF",
       "curl -l https://www.opscode.com/chef/install.sh | sudo bash",
       "echo CONFIGURING DOCKER",
       "mkdir /home/ubuntu/docker",
-      "sudo groupadd docker",
       "sudo gpasswd  -a ubuntu docker",
-      "sudo service docker restart",
+      "sudo service docker.io restart",
       "docker --version",
       "echo CLONING GIT REPOS",
       "cd /home/ubuntu/docker && git clone http://github.com/radiomix/jenkins-ami.git",
-      "echo PULLING BASE CONTAINER UBUNTU 14.04 LTS",
-      "sudo docker pull ubuntu:14.04",
-      "echo PULLING CONTAINER JENKINS on 14.04 LTS",
-      "sudo docker pull jenkins",
       "echo CONFIGURING GIT",
       "sudo -u ubuntu git config --global user.name 'Michael Klöckner' ",
       "sudo -u ubuntu git config --global user.email 'mkl@im7.de' ",
@@ -79,8 +74,21 @@
   {
    "type": "shell",
    "inline":[
-     "sudo apt-get -y upgrade",
-     "echo AMI BUILD FINISHED"
+      "sleep 10",
+      "echo PULLING BASE CONTAINER UBUNTU 14.04 LTS",
+      "sudo docker pull ubuntu:14.04",
+      "sudo reboot"
+   ]
+  },
+  {
+   "type": "shell",
+   "inline":[
+      "sleep 60",
+      "echo PULLING CONTAINER JENKINS on 14.04 LTS",
+      "sudo docker pull jenkins",
+      "sudo apt-get -y update",
+      "sudo apt-get -y upgrade",
+      "echo AMI BUILD FINISHED"
    ]
   }
  ]
