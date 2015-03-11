@@ -38,6 +38,6 @@ sudo apt-get install jenkins
 ## Running Jenkins as a Docker Container
 We pull the docker containers "ubuntu 14.04" and "jenkins" and run the container:
 ```
-docker run -p 8080:8080 jenkinsi
+docker run -p 8080:8080 jenkins:
 ```
 
