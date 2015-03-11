@@ -22,12 +22,12 @@ This example is take from [Packer](https://www.packer.io/docs/provisioners/shell
 ## Installing Jenkins
 As of [Installing Jenkins on Ubunut](https://wiki.jenkins-ci.org/display/JENKINS/Installing+Jenkins+on+Ubuntu) 
 we ad the jenkins key to our installation sources and install the package:
-`
+```
 wget -q -O - https://jenkins-ci.org/debian/jenkins-ci.org.key | sudo apt-key add -
 sudo sh -c 'echo deb http://pkg.jenkins-ci.org/debian binary/ > /etc/apt/sources.list.d/jenkins.list'
 sudo apt-get update
 sudo apt-get install jenkins
-`
+```
 ## What does this package do?
  + Jenkins will be launched as a daemon up on start. See /etc/init.d/jenkins for more details.
  + The 'jenkins' user is created to run this service.
@@ -37,5 +37,5 @@ sudo apt-get install jenkins
 
 ## Running Jenkins as a Docker Container
 We pull the docker containers "ubuntu 14.04" and "jenkins" and run the container:
-`docker run -p 8080:8080 jenkins`
+```docker run -p 8080:8080 jenkins```
 
