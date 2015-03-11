@@ -19,7 +19,7 @@ This example is take from [Packer](https://www.packer.io/docs/provisioners/shell
  + `ubuntu-14.04-lts-jenkins-ami.json` This packer file bakes our jenkins docker AMI.
  + `gopath.sh` This is the shell script adding the Go-Path to `/etc/profiles`
 
-## Installing Jenkins
+## Installing Jenkins as a package
 As of [Installing Jenkins on Ubunut](https://wiki.jenkins-ci.org/display/JENKINS/Installing+Jenkins+on+Ubuntu) 
 we ad the jenkins key to our installation sources and install the package:
 ```
