@@ -16,7 +16,7 @@ We install our tools:
  + `shell-rights.json` This packer file explanes who to set sudo rights to a script as a provisioner.
 We assume standard user ubuntu uses password ubuntu and use `execute_command` parameter.
 This example is take from [Packer](https://www.packer.io/docs/provisioners/shell.html)
- + `ubuntu-14.04-lts-jenkins-ami.json` This packer file bakes our jenkins docker AMI.
+ + `ubuntu-14.04-lts-jenkins-ami.json` This packer file bakes  a docker AMI with jenkins installed both as a package and as a container.
  + `gopath.sh` This is the shell script adding the Go-Path to `/etc/profiles`
 
 ## Installing Jenkins as a package
@@ -26,7 +26,7 @@ we ad the jenkins key to our installation sources and install the package:
 wget -q -O - https://jenkins-ci.org/debian/jenkins-ci.org.key | sudo apt-key add -
 sudo sh -c 'echo deb http://pkg.jenkins-ci.org/debian binary/ > /etc/apt/sources.list.d/jenkins.list'
 sudo apt-get update
-sudo apt-get install jenkins
+sudo apt-get installi -y jenkins
 ```
 ## What does this package do?
  + Jenkins will be launched as a daemon up on start. See /etc/init.d/jenkins for more details.
