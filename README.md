@@ -21,11 +21,11 @@ We install these tools:
  + [`shell-rights.json` This packer file explanes who to set sudo rights to a script as a provisioner.
 We assume standard user ubuntu uses password ubuntu and use `execute_command` parameter.
 This example is take from [Packer](https://www.packer.io/docs/provisioners/shell.html)
- + [`ubuntu-14.04-lts-jenkins-ami.json`] This packer file bakes a docker AMI with jenkins installed both as a package and as a container.
- + [`jenkins-instance.json`] This packer file bakes an Instance-Backed AMI with jenkins installed, serving as a test candidate to be transformed into a EBS-Backed AMI.
- + [`ec2-api-tools.json`]  Packer file to install AWS tools needed by the AMI to be converted into an Instance backed AMI
- + [`ec2-api-tools.sh`]  Shell script to install ec2-api-tools and ec2-ami-tools
- + [`gopath.sh`] This shell script adds the Go-Path to `/etc/profiles`
+ + [`ubuntu-14.04-lts-jenkins-ami.json`](ubuntu-14.04-lts-jenkins-ami.json) This packer file bakes a docker AMI with jenkins installed both as a package and as a container.
+ + [`jenkins-instance.json`](jenkins-instance.json) This packer file bakes an Instance-Backed AMI with jenkins installed, serving as a test candidate to be transformed into a EBS-Backed AMI.
+ + [`ec2-api-tools.json`](ec2-api-tools.json)  Packer file to install AWS tools needed by the AMI to be converted into an Instance backed AMI
+ + [`ec2-api-tools.sh`](ec2-api-tools.sh)  Shell script to install ec2-api-tools and ec2-ami-tools
+ + [`gopath.sh`](gopath.sh) This shell script adds the Go-Path to `/etc/profiles`
 
 ## Installing Jenkins as a package
 As of [Installing Jenkins on Ubunut](https://wiki.jenkins-ci.org/display/JENKINS/Installing+Jenkins+on+Ubuntu) 
