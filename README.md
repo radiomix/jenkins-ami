@@ -1,8 +1,13 @@
 # jenkins-ami
-Use packer to bake an AMI to run the jenkins docker container
+We use packer to bake an AMI to run the Jenkins in a docker container or on the host. 
+
+## Goal
++ Play with Jenkins 
++ Backup Jenkins effectively
++ Convert the current Jenkins Installation from an Instance backed AMI into an EBS backed AMI
 
 ## Tools
-We install our tools:
+We install these tools:
  + lxc-docker
  + curl, wget
  + ssh, vi, git, mosh, lynx, unzip, sudo
@@ -16,8 +21,11 @@ We install our tools:
  + `shell-rights.json` This packer file explanes who to set sudo rights to a script as a provisioner.
 We assume standard user ubuntu uses password ubuntu and use `execute_command` parameter.
 This example is take from [Packer](https://www.packer.io/docs/provisioners/shell.html)
- + `ubuntu-14.04-lts-jenkins-ami.json` This packer file bakes  a docker AMI with jenkins installed both as a package and as a container.
- + `gopath.sh` This is the shell script adding the Go-Path to `/etc/profiles`
+ + `ubuntu-14.04-lts-jenkins-ami.json` This packer file bakes a docker AMI with jenkins installed both as a package and as a container.
+ + `jenkins-instance.json` This packer file bakes an Instance-Backed AMI with jenkins installed, serving as a test candidate to be transformed into a EBS-Backed AMI.
+ + `ec2-api-tools.json`  Packer file to install AWS tools needed by the AMI to be converted into an Instance backed AMI
+ + `ec2-api-tools.sh`  Shell script to install ec2-api-tools and ec2-ami-tools
+ + `gopath.sh` This shell script adds the Go-Path to `/etc/profiles`
 
 ## Installing Jenkins as a package
 As of [Installing Jenkins on Ubunut](https://wiki.jenkins-ci.org/display/JENKINS/Installing+Jenkins+on+Ubuntu) 
@@ -40,4 +48,5 @@ We pull the docker containers "ubuntu 14.04" and "jenkins" and run the container
 ```
 docker run -p 8080:8080 jenkins:
 ```
-
+## Installing Jenkins on an Instance backed AMI
+Packer file [`jenkins-instance.json`](jenkins-instance.json) backes an Instance backed AMI, as a playground to convert it into an EBS backed AMI.

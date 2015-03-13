@@ -25,25 +25,7 @@
   "provisioners": [{
   "type": "shell",
     "execute_command": "echo 'ubuntu' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'",
-    "script": "ec2path.sh" 
-  },
-  {
-   "type": "shell",
-   "inline": [
-    "echo INSTALLING AWS EC2 API TOOL",
-    "sleep 10",
-    "sudo apt-get install -y git",
-    "sudo apt-get install -y unzip",
-    "sudo apt-get install -y curl",
-    "mkdir -p /tmp/aws",
-    "sudo mkdir -p /opt/aws",
-    "curl --output /tmp/aws/ec2-api-tools.zip http://ec2-downloads.s3.amazonaws.com/ec2-api-tools.zip",
-    "unzip -d /tmp/aws /tmp/aws/ec2-api-tools.zip",
-    "sudo mv /tmp/aws/ec2-api-tools-* /opt/aws/ec2-api-tools",
-    "rm -f /tmp/aws/ec2-api-tools.zip",
-    "source /etc/profile",
-    "reboot"
-   ]
+    "script": "ec2-api-tools.sh" 
   },
   {
    "type": "shell",
