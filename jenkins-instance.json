@@ -1,0 +1,64 @@
+{
+  "variables": {
+    "aws_access_key": "",
+    "aws_secret_key": "",
+    "security_group_id": ""
+  },
+  "builders": [{
+    "type": "amazon-instance",
+    "access_key": "{{user `aws_access_key`}}",
+    "secret_key": "{{user `aws_secret_key`}}",
+    "account_id": "5586-1770-0099",
+    "s3_bucket": "im7-backukp",
+    "x509_cert_path": "../../aws/x509-cert-PCRDUHIXZP4OQZRJFSDG5I6ZNE2UU4R4.pem",
+    "x509_key_path": "../../aws/x509-pk-PCRDUHIXZP4OQZRJFSDG5I6ZNE2UU4R4.pem",
+    "region": "us-west-2",
+    "source_ami": "ami-31143701",
+    "instance_type": "t1.micro",
+    "ssh_username": "ubuntu",
+    "tags": {
+	"Name": "jenkins-instance-{{timestamp}}"
+    },
+    "ami_name": "jenkins-instance-{{timestamp}}",
+    "security_group_id": "{{user `security_group_id`}}"
+  }],
+  "provisioners": [{
+  "type": "shell",
+    "execute_command": "echo 'ubuntu' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'",
+    "script": "ec2path.sh" 
+  },
+  {
+   "type": "shell",
+   "inline": [
+    "echo INSTALLING AWS EC2 API TOOL",
+    "sleep 10",
+    "sudo apt-get install -y git",
+    "sudo apt-get install -y unzip",
+    "sudo apt-get install -y curl",
+    "mkdir -p /tmp/aws",
+    "sudo mkdir -p /opt/aws",
+    "curl --output /tmp/aws/ec2-api-tools.zip http://ec2-downloads.s3.amazonaws.com/ec2-api-tools.zip",
+    "unzip -d /tmp/aws /tmp/aws/ec2-api-tools.zip",
+    "sudo mv /tmp/aws/ec2-api-tools-* /opt/aws/ec2-api-tools",
+    "rm -f /tmp/aws/ec2-api-tools.zip",
+    "source /etc/profile",
+    "reboot"
+   ]
+  },
+  {
+   "type": "shell",
+   "inline": [
+    "sleep 60",
+    "echo INSTALLING JAVA ",
+    "sudo apt-get install -y openjdk-7-jdk",
+    "java -version",
+    "echo INSTALLING JENKINS",
+    "wget -q -O - https://jenkins-ci.org/debian/jenkins-ci.org.key | sudo apt-key add -",
+    "sudo sh -c 'echo deb http://pkg.jenkins-ci.org/debian binary/ > /etc/apt/sources.list.d/jenkins.list'",
+    "sudo apt-get update",
+    "sudo apt-get install -y jenkins",
+    "sudo service jenkins status"
+    ]
+  }
+ ]
+}
