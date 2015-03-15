@@ -26,7 +26,7 @@ This example is take from [Packer](https://www.packer.io/docs/provisioners/shell
  + [`install-west-2.json`](install-west-2.json)  Packer file to install AWS tools needed by the AMI to be converted into an Instance backed AMI
  + [`gopath.sh`](gopath.sh) This shell script adds the Go-Path to `/etc/profiles`
  + [`jenkins-install.sh`](jenkins-install.sh) Shell script to install jenkins.
- + [`etup_ubuntu_hvm_instance_store_images.sh`](setup_ubuntu_hvm_instance_store_images.sh) This shell script adds JAVA and AWS tools to Ubuntu 14.04
+ + [`setup_ubuntu_hvm_instance_store_images.sh`](setup_ubuntu_hvm_instance_store_images.sh) This shell script adds JAVA and AWS tools to Ubuntu 14.04
 
 ## Installing Jenkins as a package
 As of [Installing Jenkins on Ubunut](https://wiki.jenkins-ci.org/display/JENKINS/Installing+Jenkins+on+Ubuntu) 
