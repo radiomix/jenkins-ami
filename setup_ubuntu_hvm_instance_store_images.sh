@@ -15,12 +15,15 @@ apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-conf
 apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" install ruby1.9.3
 apt-get clean
 
+
 echo "*** INSTALLING GRUB "
-# ec2-bundle-vol requires legacy grub and there should be no console setting
+## # ec2-bundle-vol requires legacy grub and there should be no console setting
 apt-get -y install grub
+###############################################
 sed -i 's/console=hvc0/console=ttyS0/' /boot/grub/menu.lst
-# the above is sufficient to fix 12.04 but 14.04 also needs the following
+## # the above is sufficient to fix 12.04 but 14.04 also needs the following
 sed -i 's/LABEL=UEFI.*//' /etc/fstab
+###############################################
 
 echo "*** INSTALLING JAVA ***"
 cd /usr/local/
@@ -29,7 +32,7 @@ mkdir ec2/bin ec2/lib ec2/etc
 export EC2_HOME=/usr/local/ec2/bin
 export JAVA_HOME=/usr/local/java/jdk1.8.0_05/bin
 export PATH=$PATH:$EC2_HOME:$JAVA_HOME
-apt-get -y install unzip kpartx
+apt-get -y install unzip kpartx gdisk
 wget --progress=bar -nv --no-cookies --no-check-certificate --header "Cookie: gpw_e24=h; oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u5-b13/server-jre-8u5-linux-x64.tar.gz -O /tmp/server-jre-8u5-linux-x64.tar.gz
 mv /tmp/server-jre-8u5-linux-x64.tar.gz java/
 cd java

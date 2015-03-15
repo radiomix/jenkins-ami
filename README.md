@@ -19,13 +19,14 @@ We install these tools:
  + open-jdk-7u75-2.5.4-2 
 
 
-## Files
+## Packer Files
  + [`shell-rights.json`](shell-rights.json) This packer file explanes who to set sudo rights to a script as a provisioner.
 We assume standard user ubuntu uses password ubuntu and use `execute_command` parameter.
 This example is take from [Packer](https://www.packer.io/docs/provisioners/shell.html)
  + [`ubuntu-14.04-lts-jenkins-ami.json`](ubuntu-14.04-lts-jenkins-ami.json) This packer file bakes a docker AMI with jenkins installed both as a package and as a container.
  + [`jenkins-install.json`](jenkins-install.json) This packer file bakes an Instance-Backed AMI with jenkins installed, serving as a test candidate to be transformed into a EBS-Backed AMI.
- + [`install-west-2.json`](install-west-2.json)  Packer file to install AWS tools needed by the AMI to be converted into an Instance backed AMI
+ + [`install-west-2.json`](install-west-2.json)  Backes AWS tools needed by the Instance backed AMI to be registerd as an AMI.
+## Install Files
  + [`gopath.sh`](gopath.sh) This shell script adds the Go-Path to `/etc/profiles`
  + [`jenkins-install.sh`](jenkins-install.sh) Shell script to install jenkins.
  + [`setup_ubuntu_hvm_instance_store_images.sh`](setup_ubuntu_hvm_instance_store_images.sh) This shell script adds JAVA and AWS tools to Ubuntu 14.04

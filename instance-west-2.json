@@ -4,7 +4,7 @@
     "aws_secret_key":"",
     "aws_account_id":"5586-1770-0099",
     "security_group_id":"sg-e6908584",
-    "aws_s3_bucket":"im7-backup"
+    "aws_s3_bucket":"im7-backup/instance-empty"
   },
   "builders":[
     {
@@ -12,7 +12,7 @@
       "access_key":"{{user `aws_access_key`}}",
       "secret_key":"{{user `aws_secret_key`}}",
       "region":"us-west-2",
-      "source_ami":"ami-0185fd31",
+      "source_ami":"ami-29ebb519",
       "instance_type":"m3.medium",
       "ssh_username":"ubuntu",
       "account_id":"{{user `aws_account_id`}}",
@@ -20,9 +20,13 @@
       "x509_cert_path":"../../aws/x509-cert-PCRDUHIXZP4OQZRJFSDG5I6ZNE2UU4R4.pem",
       "x509_key_path":"../../aws/x509-pk-PCRDUHIXZP4OQZRJFSDG5I6ZNE2UU4R4.pem",
       "x509_upload_path":"/tmp",
-      "bundle_vol_command": "sudo -n bash -c ' export JAVA_HOME=/usr/local/java/jdk1.8.0_05 ; export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin:$JAVA_HOME/bin ; /usr/local/ec2/bin/ec2-bundle-vol -k {{.KeyPath}} -u {{.AccountId}} -c {{.CertPath}} -r {{.Architecture}} -e {{.PrivatePath}}/* -d {{.Destination}} -p {{.Prefix}} --batch'",
+      "ami_virtualization_type": "hvm",
+
+      "bundle_vol_command": "sudo -n bash -c ' export JAVA_HOME=/usr/local/java/jdk1.8.0_05 ; export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin:$JAVA_HOME/bin ; /usr/local/ec2/bin/ec2-bundle-vol -k {{.KeyPath}} -u {{.AccountId}} -c {{.CertPath}} -r {{.Architecture}} -e {{.PrivatePath}}/* -d {{.Destination}} -p {{.Prefix}}  --block-device-mapping ami=sda,root=/dev/sda1 --batch'",
+
       "bundle_upload_command": "sudo -n bash -c ' export JAVA_HOME=/usr/local/java/jdk1.8.0_05 ; export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin:$JAVA_HOME/bin ; /usr/local/ec2/bin/ec2-upload-bundle -b {{.BucketName}} -m {{.ManifestPath}} -a {{.AccessKey}} -s {{.SecretKey}} -d {{.BundleDirectory}} --batch --region {{.Region}} --retry'",
-      "ami_name":"instance-empty-{{timestamp}}",
+
+      "ami_name":"empty-instance-stored-{{timestamp}}",
       "security_group_id":""
     }
   ],
