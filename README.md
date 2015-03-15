@@ -26,6 +26,7 @@ This example is take from [Packer](https://www.packer.io/docs/provisioners/shell
  + [`ubuntu-14.04-lts-jenkins-ami.json`](ubuntu-14.04-lts-jenkins-ami.json) This packer file bakes a docker AMI with jenkins installed both as a package and as a container.
  + [`jenkins-install.json`](jenkins-install.json) This packer file bakes an Instance-Backed AMI with jenkins installed, serving as a test candidate to be transformed into a EBS-Backed AMI.
  + [`install-west-2.json`](install-west-2.json)  Backes AWS tools needed by the Instance backed AMI to be registerd as an AMI.
+
 ## Install Files
  + [`gopath.sh`](gopath.sh) This shell script adds the Go-Path to `/etc/profiles`
  + [`jenkins-install.sh`](jenkins-install.sh) Shell script to install jenkins.
