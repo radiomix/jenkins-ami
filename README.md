@@ -50,4 +50,4 @@ We pull the docker containers "ubuntu 14.04" and "jenkins" and run the container
 docker run -p 8080:8080 jenkins:
 ```
 ## Installing Jenkins on an Instance backed AMI
-Packer file [`jenkins-instance.json`](jenkins-instance.json) backes an Instance backed AMI, as a playground to convert it into an EBS backed AMI.
+Packer file [`jenkins-installjson`](jenkins-install.json) backes an Instance backed AMI, as a playground to convert it into an EBS backed AMI.
