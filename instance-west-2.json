@@ -21,8 +21,8 @@
       "x509_key_path":"../../aws/x509-pk-PCRDUHIXZP4OQZRJFSDG5I6ZNE2UU4R4.pem",
       "x509_upload_path":"/tmp",
       "bundle_vol_command": "sudo -n bash -c ' export JAVA_HOME=/usr/local/java/jdk1.8.0_05 ; export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin:$JAVA_HOME/bin ; /usr/local/ec2/bin/ec2-bundle-vol -k {{.KeyPath}} -u {{.AccountId}} -c {{.CertPath}} -r {{.Architecture}} -e {{.PrivatePath}}/* -d {{.Destination}} -p {{.Prefix}} --batch'",
-      "bundle_upload_command": "sudo -n bash -c ' export JAVA_HOME=/usr/local/java/jdk1.8.0_05 ; export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin:$JAVA_HOME/bin ; /usr/local/ec2/bin/ec2-upload-bundle -b {{.BucketName}} -m {{.ManifestPath}} -a {{.AccessKey}} -s {{.SecretKey}} -d {{.BundleDirectory}} --batch --url {{.S3Endpoint}} --retry'",
-      "ami_name":"packer-instance-store-example {{timestamp}}",
+      "bundle_upload_command": "sudo -n bash -c ' export JAVA_HOME=/usr/local/java/jdk1.8.0_05 ; export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin:$JAVA_HOME/bin ; /usr/local/ec2/bin/ec2-upload-bundle -b {{.BucketName}} -m {{.ManifestPath}} -a {{.AccessKey}} -s {{.SecretKey}} -d {{.BundleDirectory}} --batch --region {{.Region}} --retry'",
+      "ami_name":"instance-empty-{{timestamp}}",
       "security_group_id":""
     }
   ],
