@@ -1,6 +1,5 @@
 # jenkins-ami
-We use packer to bake an AMI to run the Jenkins in a docker container or on the host. 
-First we build an Instance-Backed AMI as a playground to convert it into an EBS-Backed AMI.
+We run Jenkins on an Instance-Backed AMI to convert it into an EBS-Backed AMI.
 
 ## Goal
 + Install and play with Jenkins on an Instance backed AMI
