@@ -38,24 +38,9 @@ The approach is slightly addapted from [Building Ubuntu 12.04 and 14.04 HVM Inst
 
 ## The Instance backed AMI
 
-## Installing Jenkins on an Instance backed AMI
+### Installing Jenkins on an Instance backed AMI
 Packer file [`jenkins-12.04.json`](jenkins-12.04.json) backes an Instance backed AMI, as a playground to convert it into an EBS backed AMI.
 
-### Installing Jenkins as a package
-As of [Installing Jenkins on Ubunut](https://wiki.jenkins-ci.org/display/JENKINS/Installing+Jenkins+on+Ubuntu) 
-we ad the jenkins key to our installation sources and install the package:
-```
-wget -q -O - https://jenkins-ci.org/debian/jenkins-ci.org.key | sudo apt-key add -
-sudo sh -c 'echo deb http://pkg.jenkins-ci.org/debian binary/ > /etc/apt/sources.list.d/jenkins.list'
-sudo apt-get update
-sudo apt-get installi -y jenkins
-```
-### What does this package do?
- + Jenkins will be launched as a daemon up on start. See /etc/init.d/jenkins for more details.
- + The 'jenkins' user is created to run this service.
- + Log file will be placed in /var/log/jenkins/jenkins.log. Check this file if you are troubleshooting Jenkins.
- + /etc/default/jenkins will capture configuration parameters for the launch like e.g JENKINS_HOME
- + By default, Jenkins listen on port 8080. Access this port with your browser to start configuration
 
 ### Running Jenkins as a Docker Container
 To pull the docker containers 'jenkins' and run it:
