@@ -29,8 +29,8 @@ As source AMIs we use two Ubuntu LTS Server AMIs
 The approach is slightly addapted from [Building Ubuntu 12.04 and 14.04 HVM Instance Store AMIs](https://github.com/Lumida/packer/wiki/Building-Ubuntu-12.04-and-14.04-HVM-Instance-Store-AMIs).
  + [`instance-12.04.json`](instance-12.04.json)  Backes AWS tools needed by the Instance backed AMI to be registerd as an Ubuntu 12.04 AMI.
  + [`instance-14.04.json`](instance-14.04.json)  Backes AWS tools needed by the Instance backed AMI to be registerd as an Ubuntu 14.04 AMI.
- + [`jenkins-14.04.json`](jenkins-14.04.json) This packer file bakes an Instance-Backed AMI with jenkins installed, serving as a test candidate to be transformed into a EBS-Backed AMI on Ubuntu 14.04.
- + [`jenkins-14.04.json`](jenkins-14.04.json) This packer file bakes an Instance-Backed AMI with jenkins installed, serving as a test candidate to be transformed into a EBS-Backed AMI on Ubuntu 14.04.
+ + [`jenkins-12.04.json`](jenkins-12.04.json) This packer file bakes an Instance-Backed AMI with jenkins installed on Ubuntu 12.04, serving as a test candidate to be transformed into a EBS-Backed AMI.
+ + [`jenkins-14.04.json`](jenkins-14.04.json) This packer file bakes an Instance-Backed AMI with jenkins installed on Ubuntu 14.04, serving as a test candidate to be transformed into a EBS-Backed AMI.
 
 ### Install Files
  + [`setup_ubuntu_hvm_instance_store_images.sh`](setup_ubuntu_hvm_instance_store_images.sh) This shell script adds JAVA and AWS tools to Ubuntu 14.04
