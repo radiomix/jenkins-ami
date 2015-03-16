@@ -1,0 +1,94 @@
+{
+  "variables":{
+    "aws_access_key":"",
+    "aws_secret_key":"",
+    "aws_account_id":"5586-1770-0099",
+    "security_group_id":"sg-e6908584",
+    "aws_s3_bucket":"im7-backup/instance-jenkins-empty"
+  },
+  "builders":[
+    {
+      "name": "ubuntu-1204-hvm-is",
+      "type":"amazon-instance",
+      "access_key":"{{user `aws_access_key`}}",
+      "secret_key":"{{user `aws_secret_key`}}",
+      "region":"us-west-2",
+      "source_ami":"ami-29ebb519",
+      "instance_type":"m3.medium",
+      "ssh_username":"ubuntu",
+      "account_id":"{{user `aws_account_id`}}",
+      "s3_bucket":"{{user `aws_s3_bucket`}}",
+      "x509_cert_path":"../../aws/x509-cert-PCRDUHIXZP4OQZRJFSDG5I6ZNE2UU4R4.pem",
+      "x509_key_path":"../../aws/x509-pk-PCRDUHIXZP4OQZRJFSDG5I6ZNE2UU4R4.pem",
+      "x509_upload_path":"/tmp",
+      "ami_virtualization_type": "hvm",
+
+      "bundle_vol_command": "sudo -n bash -c ' export JAVA_HOME=/usr/local/java/jdk1.8.0_05 ; export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin:$JAVA_HOME/bin ; /usr/local/ec2/bin/ec2-bundle-vol -k {{.KeyPath}} -u {{.AccountId}} -c {{.CertPath}} -r {{.Architecture}} -e {{.PrivatePath}}/*,/usr/local/ec2*,/usr/local/java/,/usr/local/ami*,/usr/local/api* -d {{.Destination}} -p {{.Prefix}}  --block-device-mapping ami=sda,root=/dev/sda1 --batch'",
+
+      "bundle_upload_command": "sudo -n bash -c ' export JAVA_HOME=/usr/local/java/jdk1.8.0_05 ; export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin:$JAVA_HOME/bin ; /usr/local/ec2/bin/ec2-upload-bundle -b {{.BucketName}} -m {{.ManifestPath}} -a {{.AccessKey}} -s {{.SecretKey}} -d {{.BundleDirectory}} --batch --region {{.Region}} --retry'",
+
+      "ami_name":"14.04-jenkins-instance-{{timestamp}}",
+      "security_group_id":"",
+      "tags": {
+        "Name": "14.04 LTS Jenkins Instance Store"
+      }
+    }
+  ],
+  "provisioners":[
+    {
+      "type":"shell",
+           "execute_command": "echo 'ubuntu' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'",
+           "scripts":[
+               "setup_ubuntu_hvm_instance_store_images.sh"
+          ]
+      },
+    {
+ "type": "shell",  
+    "inline": [  
+      "sleep 10",  
+      "echo ***INSTALLING TOOL",
+      "sudo apt-get update",  
+      "sudo apt-get install -y curl wget ssh git mosh lynx unzip debconf-utils emacs python python-pip docker.io",  
+      "which lynx mosh git vi wget unzip docker",  
+      "echo ***INSTALLING CHEF",  
+      "curl -l https://www.opscode.com/chef/install.sh | sudo bash",  
+      "echo ***CONFIGURING DOCKER",  
+      "mkdir /home/ubuntu/docker",  
+      "sudo gpasswd  -a ubuntu docker",  
+      "sudo service docker.io restart",  
+      "docker --version",  
+      "echo ***CLONING GIT REPOS",  
+      "cd /home/ubuntu/docker && git clone http://github.com/radiomix/jenkins-ami.git",  
+      "echo CONFIGURING GIT",  
+      "sudo -u ubuntu git config --global user.name 'Michael Klöckner' ",  
+      "sudo -u ubuntu git config --global user.email 'mkl@im7.de' ",  
+      "sudo -u ubuntu git config --global color.ui true ",  
+      "sudo -u ubuntu git config --global credential.helper 'store' ",  
+      "echo ***INSTALLING JAVA ",  
+      "sudo apt-get install -y openjdk-7-jdk",  
+      "java -version",  
+      "echo ***INSTALLING PACKER",  
+      "wget https://dl.bintray.com/mitchellh/packer/packer_0.7.5_linux_amd64.zip",  
+      "sudo unzip -d /usr/local/bin packer_0.7.5_linux_amd64.zip",  
+      "rm -f packer_0.7.5_linux_amd64.zip",  
+      "packer -version",  
+      "echo ***INSTALLING GOLANG",  
+      "wget -o wget.log https://storage.googleapis.com/golang/go1.4.2.linux-amd64.tar.gz",  
+      "sudo tar -C /usr/local/ -xzf go1.4.2.linux-amd64.tar.gz",  
+      "rm -f go1.4.2.linux-amd64.tar.gz",  
+      "echo ***INSTALLING JENKINS",  
+      "wget -q -O - https://jenkins-ci.org/debian/jenkins-ci.org.key | sudo apt-key add -",
+      "sudo sh -c 'echo deb http://pkg.jenkins-ci.org/debian binary/ > /etc/apt/sources.list.d/jenkins.list'",
+      "sudo apt-get update",
+      "sudo apt-get install -y jenkins",
+      "sudo service jenkins status"
+   ]
+  },
+  {
+  "type": "shell",
+    "execute_command": "echo 'ubuntu' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'",
+    "script": "gopath.sh"
+  }
+ ]
+}
+

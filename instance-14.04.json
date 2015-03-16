@@ -22,12 +22,15 @@
       "x509_upload_path":"/tmp",
       "ami_virtualization_type": "hvm",
 
-      "bundle_vol_command": "sudo -n bash -c ' export JAVA_HOME=/usr/local/java/jdk1.8.0_05 ; export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin:$JAVA_HOME/bin ; /usr/local/ec2/bin/ec2-bundle-vol -k {{.KeyPath}} -u {{.AccountId}} -c {{.CertPath}} -r {{.Architecture}} -e {{.PrivatePath}}/*,/usr/local/ec2/,/usr/local/java/,/usr/local/ami* -d {{.Destination}} -p {{.Prefix}}  --block-device-mapping ami=sda,root=/dev/sda1 --batch'",
+      "bundle_vol_command": "sudo -n bash -c ' export JAVA_HOME=/usr/local/java/jdk1.8.0_05 ; export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin:$JAVA_HOME/bin ; /usr/local/ec2/bin/ec2-bundle-vol -k {{.KeyPath}} -u {{.AccountId}} -c {{.CertPath}} -r {{.Architecture}} -e {{.PrivatePath}}/*,/usr/local/ec2*,/usr/local/java/,/usr/local/ami*,/usr/local/api* -d {{.Destination}} -p {{.Prefix}}  --block-device-mapping ami=sda,root=/dev/sda1 --batch'",
 
       "bundle_upload_command": "sudo -n bash -c ' export JAVA_HOME=/usr/local/java/jdk1.8.0_05 ; export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin:$JAVA_HOME/bin ; /usr/local/ec2/bin/ec2-upload-bundle -b {{.BucketName}} -m {{.ManifestPath}} -a {{.AccessKey}} -s {{.SecretKey}} -d {{.BundleDirectory}} --batch --region {{.Region}} --retry'",
 
-      "ami_name":"empty-instance-stored-{{timestamp}}",
-      "security_group_id":""
+      "ami_name":"14.04-instance-stored-{{timestamp}}",
+      "security_group_id":"",
+      "tags": {
+        "Name": "14.04 LTS Instance Store"
+      }
     }
   ],
   "provisioners":[
