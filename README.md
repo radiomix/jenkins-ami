@@ -6,7 +6,7 @@ between an Instance stored and an EBS stored AMI.
 | Characteristics | EBS backed | Instance store backed |
 |---|---|---|
 |boot  | < 1 min  | < 5 min   |
-|persitnce  | gets replicated  | persists during live of the instance  |
+|persitence  | gets replicated, persists after the instance  | persists only during live of the instance  |
 |upgrading  | type,kernel,ram disk, user-data can be changes while instance is stopped  | attributes are fixed   |
 |charges  | per instance usage, EBS and snapshot storage | per usage and S3 storage   |
 |AMI creation/bundling  | single command/call  | installation of AMI tools  |
