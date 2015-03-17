@@ -2,8 +2,10 @@
 We run Jenkins on an Instance-Backed AMI to convert it into an EBS-Backed AMI.
 This [article](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ComponentsAMIs.html) explains the difference
 between an Instance stored and an EBS stored AMI. 
+
 | Characteristics | EBS backed | Instance store backed |
-|boot  | < 1min  | < 5min   |
+|---|---|---|
+|boot  | < 1 min  | < 5 min   |
 |persitnce  | gets replicated  | persists during live of the instance  |
 |upgrading  | type,kernel,ram disk, user-data can be changes while instance is stopped  | attributes are fixed   |
 |charges  | per instance usage, EBS and snapshot storage | per usage and S3 storage   |
