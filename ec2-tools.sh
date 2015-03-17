@@ -7,4 +7,4 @@ echo "deb-src http://us.archive.ubuntu.com/ubuntu/ trusty multiverse" >> /etc/ap
 echo "deb http://us.archive.ubuntu.com/ubuntu/ trusty-updates multiverse" >> /etc/apt/sources.list
 echo "deb-src http://us.archive.ubuntu.com/ubuntu/ trusty-updates multiverse" >> /etc/apt/sources.list
 apt-get update
-apt-get install -y ec2-api-tools ec2-ami-tools
+apt-get install -y --force-yes ec2-api-tools ec2-ami-tools
