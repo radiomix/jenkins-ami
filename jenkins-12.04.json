@@ -8,7 +8,7 @@
   },
   "builders":[
     {
-      "name": "ubuntu-1204-hvm-is",
+      "name": "ubuntu-1204-hvm-is-jenkins",
       "type":"amazon-instance",
       "access_key":"{{user `aws_access_key`}}",
       "secret_key":"{{user `aws_secret_key`}}",
@@ -30,7 +30,7 @@
       "ami_name":"12.04-jenkins-instance-{{timestamp}}",
       "security_group_id":"",
       "tags": {
-        "Name": "12.04 LTS Jenkins Instance Store"
+        "Name": "12.04-Jenkins (Instance)-{{timestamp}}"
       }
     }
   ],
@@ -43,12 +43,12 @@
           ]
       },
     {
- "type": "shell",  
-    "inline": [  
+    "type": "shell",  
+      "inline": [  
       "sleep 10",  
       "echo ***INSTALLING TOOL",
       "sudo apt-get update",  
-      "sudo apt-get install -y curl wget git mosh lynx unzip docker.io",  
+      "sudo apt-get install -y --force-yes curl wget git mosh lynx unzip docker.io",  
       "which lynx mosh git vi wget unzip docker",  
       "echo ***INSTALLING JAVA ",  
       "sudo apt-get install -y openjdk-7-jdk",  
@@ -60,7 +60,14 @@
       "sudo apt-get install -y jenkins",
       "sudo service jenkins status"
    ]
-  }
+  },
+  {
+      "type":"shell",
+           "execute_command": "echo 'ubuntu' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'",
+           "scripts":[
+               "ec2-tools.sh"
+          ]
+    }
  ]
 }
 
