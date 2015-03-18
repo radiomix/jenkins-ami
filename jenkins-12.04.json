@@ -27,10 +27,10 @@
 
       "bundle_upload_command": "sudo -n bash -c ' export JAVA_HOME=/usr/local/java/jdk1.8.0_05 ; export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin:$JAVA_HOME/bin ; /usr/local/ec2/bin/ec2-upload-bundle -b {{.BucketName}} -m {{.ManifestPath}} -a {{.AccessKey}} -s {{.SecretKey}} -d {{.BundleDirectory}} --batch --region {{.Region}} --retry'",
 
-      "ami_name":"12.04-jenkins-instance-{{timestamp}}",
+      "ami_name":"12.04-jenkins-instance-{{isotime | clean_ami_name}}",
       "security_group_id":"",
       "tags": {
-        "Name": "12.04-Jenkins (Instance)-{{timestamp}}"
+        "Name": "12.04-Jenkins (Instance)-{{isotime | clean_ami_name}}"
       }
     }
   ],
@@ -48,7 +48,12 @@
       "sleep 10",  
       "echo ***INSTALLING TOOL",
       "sudo apt-get update",  
-      "sudo apt-get install -y --force-yes curl wget git mosh lynx unzip docker.io",  
+      "sudo apt-get install -y --force-yes curl wget ",  
+      "sudo apt-get install -y --force-yes curl git ",  
+      "sudo apt-get install -y --force-yes curl mosh ",  
+      "sudo apt-get install -y --force-yes curl lynx ",  
+      "sudo apt-get install -y --force-yes curl unzip ",  
+      "sudo apt-get install -y --force-yes curl docker.io",  
       "which lynx mosh git vi wget unzip docker",  
       "echo ***INSTALLING JAVA ",  
       "sudo apt-get install -y openjdk-7-jdk",  
