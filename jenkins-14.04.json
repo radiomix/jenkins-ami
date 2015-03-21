@@ -43,36 +43,30 @@
           ]
       },
     {
- "type": "shell",  
-      "inline": [  
-      "sleep 10",  
-      "echo ***INSTALLING TOOL",  
+   "type": "shell",
+      "inline": [
+      "sleep 10",
+      "echo ***INSTALLING TOOL",
       "sudo apt-get update",  
       "sudo apt-get install -y --force-yes curl wget ",  
       "sudo apt-get install -y --force-yes curl git ",  
-      "sudo apt-get install -y --force-yes curl mosh ",  
-      "sudo apt-get install -y --force-yes curl lynx ",  
+      "sudo apt-get install -y --force-yes curl mosh ",
+      "sudo apt-get install -y --force-yes curl lynx ",
       "sudo apt-get install -y --force-yes curl unzip ",  
       "sudo apt-get install -y --force-yes curl docker.io",  
-      "which lynx mosh git vi wget unzip docker",  
-      "echo ***INSTALLING JAVA ",  
-      "sudo apt-get install -y openjdk-7-jdk",  
-      "java -version",  
-      "echo ***INSTALLING JENKINS",  
-      "wget -q -O - https://jenkins-ci.org/debian/jenkins-ci.org.key | sudo apt-key add -",  
-      "sudo sh -c 'echo deb http://pkg.jenkins-ci.org/debian binary/ > /etc/apt/sources.list.d/jenkins.list'",  
-      "sudo apt-get update",  
-      "sudo apt-get install -y jenkins",  
-      "sudo service jenkins status"  
-   ]  
-  },  
-  {   
-      "type":"shell",
-           "execute_command": "echo 'ubuntu' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'",
-           "scripts":[
-               "ec2-tools.sh"
-          ]
-    }   
+      "which lynx mosh git vi wget unzip docker",
+      "echo ***INSTALLING JAVA ",
+      "sudo apt-get install -y openjdk-7-jdk",
+      "java -version",
+      "echo ***INSTALLING JENKINS",
+      "wget -q -O - https://jenkins-ci.org/debian/jenkins-ci.org.key | sudo apt-key add -",
+      "sudo sh -c 'echo deb http://pkg.jenkins-ci.org/debian binary/ > /etc/apt/sources.list.d/jenkins.list'",
+      "sudo apt-get update",
+      "sudo apt-get install -y jenkins",
+      "curl -Lo- https://bit.ly/janus-bootstrap | bash",
+      "sudo service jenkins status"
+     ]
+   }
  ]
 }
 
