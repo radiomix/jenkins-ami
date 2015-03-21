@@ -46,7 +46,7 @@ The approach is slightly adapted from [Building Ubuntu 12.04 and 14.04 HVM Insta
  + [`setup_ubuntu_hvm_instance_store_images.sh`](setup_ubuntu_hvm_instance_store_images.sh) This shell script adds JAVA and AWS tools to Ubuntu 14.04
  + [`gopath.sh`](gopath.sh) Adds the Go-Path to `/etc/profiles`
  + [`ec2-tools.sh`](ec2-tools.sh) Installs packages `ec2-api-tools` and `ec2-ami-tools`.
- + [`ami-tools.sh`](ami-tools.sh) Installs `ec2-api-tools` and `ec2-ami-tools` and neccessary packages (`ruby`, `openjdk-7-jre`), exports AWS credentials.
+ + [`aws-tools.sh`](aws-tools.sh) Installs `ec2-api-tools` and `ec2-ami-tools` and neccessary packages (`ruby`, `openjdk-7-jre`), exports AWS credentials.
  + [`bundle_instance.sh`](bundle_instance.sh) Installs packages `gdisk`,`kpartx` and `grub` (legacy), bundles and uploads the image and registers an AMI.
 
 ## The Instance backed AMI
