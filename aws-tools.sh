@@ -127,16 +127,16 @@ fi
 if [[ "$AWS_PK_PATH" == "" ]]
 then
   echo -n "Enter /path/to/x509-pk.pem: "
-  read awsCertPath
-  if [  ! -f "$awsCertPath" ]; then
-        echo "*** ERROR: AWS X509 PK FILE NOT FOUND IN:$awsCertPath"
+  read awsPkPath
+  if [  ! -f "$awsPkPath" ]; then
+        echo "*** ERROR: AWS X509 PK FILE NOT FOUND IN:$awsPkPath"
         exit -1
   fi
   export AWS_PK_PATH=$awsCertPath
 fi
 
 echo "*** Using x509-cert.pem \"$awsCertPath\""
-echo "*** Using x509-pk.pem \"$\""
+echo "*** Using x509-pk.pem \"$awsPkPath\""
 echo 
 echo "***  DONE WHITH $0"
 
