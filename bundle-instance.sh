@@ -5,7 +5,7 @@
 # Prerequests:
 #    THE FOLLOWING IS USUMED:
 #   - X509-cert-key-file.pem on the machine assuming under: /tmp/cert/, file path will be exported as AWS_CERT_PATH
-#   - X509-pk-key-file.pem on the machine assuming under: /tmp/cert/, file path will be exported as AWS_PK_PATH=
+#   - X509-pk-key-file.pem on the machine assuming under: /tmp/cert/, file path will be exported as AWS_PK_PATH
 #   - AWS_ACCESS_KEY, AWS_SECRET_KEY and AWS_ACCOUNT_ID as enironment variables 
 #   - AWS API/AMI tools installed and in $PATH
 ########## ALL THIS IS DONE BY SCRIPT prepare-aws-tools.sh ###################
@@ -39,8 +39,7 @@ aws_ami_name="Ubuntu LTS 12.04 Jenkins-Server as of $date"
 # bundle directory, should be on a partition with lots of space
 bundle_dir="/mnt/image/"
 if [[ ! -d $bundle_dir ]]; then
-  echo " ERROR: directory $bundle_dir to bundle the image does not exist!! "
-  exit -10
+  sudo mkdir $bundle_dir
 fi
 if [[ ! -d $bundle_dir ]]; then
   echo " ERROR: directory $bundle_dir to bundle the image is not writable!! "
@@ -50,13 +49,23 @@ fi
 # AWS S3 Bucket 
 s3_bucket="im7-backup/instance-prepared"
 
+# x509 cert/pk file
+if [[ "$AWS_PK_PATH" == "" ]]; then
+  echo " ERROR: X509 private key file \"$AWS_PK_PATH\" not found!! "
+  exit -21
+fi
+if [[ "$AWS_CERT_PATH" == "" ]]; then
+  echo " ERROR: X509 cert key file \"$AWS_CERT_PATH\" not found!! "
+  exit -22
+fi
+
 ## config variables
 
 ######################################
 ## packages needed anyways
 echo "*** Installing packages 'gdisk kpartx'"
 ## packages needed anyways
-sudo apt-get update
+#sudo apt-get update
 sudo apt-get install -y gdisk kpartx
 
 #######################################
@@ -66,7 +75,7 @@ lsblk
 ### read the root device
 echo -n "Enter the root device: /dev/"
 read _device
-$root_device="/dev/$_device"
+root_device="/dev/$_device"
 ## check for root defice
 sudo file -s $root_device | grep "part /$"
 
@@ -83,18 +92,21 @@ echo "We got grub version:$grub_version."
 echo "*** Checking for boot parameters"
 echo "Next line holds boot command line parameters:"
 cat /proc/cmdline
+echo
 echo "Next line holds kernel parameters in /boot/grub/menu.lst:"
 grep ^kernel /boot/grub/menu.lst
-echo -n "Edit /boot/grub/menu.list to adjust kernel parameters to reflect boot command parameters"
+echo
+echo -n "Adjust kernel parameter in /boot/grub/menu.list to reflect command line"
+read -t 20
 sudo vi /boot/grub/menu.lst
 
 #######################################
 ### remove evi entries in /etc/fstab if exist
 echo "*** Checking for efi/uefi partitions in /etc/fstab"
 efi=$(grep -i efi /etc/fstab)
-if [[ "$efi" == "" ]]; then
-  echo "Pleas delete these UEFI/EFI partitions:$efi ?"
-  sleep 4
+if [[ "$efi" != "" ]]; then
+  echo "Please delete these UEFI/EFI partitions:$efi ?"
+  read -t 20
   sudo vi /etc/fstab
 fi
 
@@ -103,17 +115,17 @@ fi
 echo "If you want parameter \"--block-device-mapping \" enter [y|N]:"
 blockDevice=""
 read blockDevice
-if [  "$blockDevice" =="y" ]; then
+if  [[ "$blockDevice" == "y" ]]; then
   blockDevice="  --block-device-mapping ami=sda,root=/dev/sda1 "
+  echo "Using  --block-device-mapping ami=sda,root=/dev/sda1 "
 fi
-exit
 
 #######################################
 ### this is bundle-work
 sudo -E $EC2_HOME/bin/ec2-version
 
 echo "*** Bundleing AMI, this may take several minutes "
-sudo -E $EC2_AMITOOL_HOME/bin/ec2-bundle-vol -k $pkPath -c $certPath -u $awsAccountId -r x86_64 -e /tmp/cert/ -d $bundle_dir -p image-$date-fmt  $blockDevice --batch
+sudo -E $EC2_AMITOOL_HOME/bin/ec2-bundle-vol -k $AWS_PK_PATH -c $AWS_CERT_PATH -u $AWS_ACCOUNT_ID -r x86_64 -e /tmp/cert/ -d $bundle_dir -p image-$date-fmt  $blockDevice --batch
 
 echo "*** Uploading AMI bundle to $s3_bucket "
 ec2-upload-bundle  -b $s3_bucket -m $bundle_dir/image-$date-fmt.manifest.xml -a $AWS_ACCESS_KEY -s $AWS_SECRET_KEY --region $aws_region
