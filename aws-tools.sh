@@ -10,15 +10,17 @@
 #       export AWS_SECRET_KEY=your_secret_access_key  
 #   - some commands need sudo rights  
 #   - we need our AWS x509-pk/cert files on this machine
-
+#
+# CAUTION: to export env variables properly, this script should be called
+#  $:>. aws-tools.sh
+#
 #######################################  
 ## config variables  
-  
-# access key from env variable, needed for authentification  
-aws_access_key=$AWS_ACCESS_KEY  
-  
-# secrete key from env variable, needed for authentification  
-aws_secret_key=$AWS_SECRET_KEY  
+
+# aws credentials, mayb in env variables?
+aws_secret_key=$AWS_SECRET_KEY
+aws_access_key=$AWS_ACCESS_KEY
+aws_account_id=$AWS_ACCOUNT_ID
   
 # region  
 aws_region=us-west-2  
@@ -76,34 +78,37 @@ echo
 ######################################
 ### set the aws-access/secret-key/account-id 
 
-if [[ "$AWS_ACCESS_KEY" == "" ]]
+if [[ "$aws_access_key" == "" ]]
 then 
-  echo -n "Enter your awsAccessKey: "
-  read awsAccessKey
-  export AWS_ACCESS_KEY=$awsAccessKey
+  echo -n "Enter your AWS_ACCESS_KEY:"
+  read aws_access_key
+  export AWS_ACCESS_KEY=$aws_access_key
 fi
  
-if [[ "$AWS_SECRET_KEY" == "" ]]
+if [[ "$aws_secret_key" == "" ]]
 then 
-  echo -n "Enter your awsSecretKey: "
-  read awsSecretKey
-  export AWS_secret_KEY=$awsSecretKey
+  echo -n "Enter your AWS_SECRET_KEY:"
+  read aws_secret_key
+  export AWS_SECRET_KEY=$aws_secret_key
 fi
 
-if [[ "$AWS_ACCOUNT_ID" == "" ]]
+if [[ "$aws_account_id" == "" ]]
 then
-  echo -n "Enter your aws account id: "
-  read awsAccountId
-  export AWS_ACCOUNT_ID=$aws-accont-id
+  echo -n "Enter your AWS_ACCOUNT_ID:"
+  read aws_account_id
+  export AWS_ACCOUNT_ID=$aws_account_id
 fi
 
-awsAccessKey=${AWS_ACCESS_KEY:0:3}********${AWS_ACCESS_KEY:${#AWS_ACCESS_KEY}-3:3}
-awsSecretKey=${AWS_SECRET_KEY:0:3}********${AWS_SECRET_KEY:${#AWS_SECRET_KEY}-3:3}
-awsAccountId=${AWS_ACCOUNT_ID:0:3}********${AWS_ACCOUNT_ID:${#AWS_ACCOUNT_ID}-3:3}
+export AWS_ACCESS_KEY
+export AWS_SECRET_KEY
+export AWS_ACCOUND_ID
+aws_access_key=${AWS_ACCESS_KEY:0:3}********${AWS_ACCESS_KEY:${#AWS_ACCESS_KEY}-3:3}
+aws_secret_key=${AWS_SECRET_KEY:0:3}********${AWS_SECRET_KEY:${#AWS_SECRET_KEY}-3:3}
+aws_account_id=${AWS_ACCOUNT_ID:0:3}********${AWS_ACCOUNT_ID:${#AWS_ACCOUNT_ID}-3:3}
 echo
-echo "*** Using awsAccessKey: \"$awsAccessKey\""
-echo "*** Using awsSecretKey: \"$awsSecretKey\""
-echo "*** Using aws-account-id: \"$awsAccountId\""
+echo "*** Using AWS_ACCESS_KEY: \"$aws_access_key\""
+echo "*** Using AWS_SECRET_KEY: \"$aws_secret_key\""
+echo "*** Using AWS_ACCOUNT_ID: \"$aws_account_id\""
 echo
 
 ######################################
@@ -132,7 +137,7 @@ then
         echo "*** ERROR: AWS X509 PK FILE NOT FOUND IN:$awsPkPath"
         exit -1
   fi
-  export AWS_PK_PATH=$awsCertPath
+  export AWS_PK_PATH=$awsPkPath
 fi
 
 echo "*** Using x509-cert.pem \"$awsCertPath\""
