@@ -126,17 +126,19 @@ fi
 #######################################
 ### do we need --partion mbr to bundle?
 echo "Is this AMI is of virtualization type \"hvm\"? [y|N]:"
-partiotion=""
+partition=""
 read partition
-if  [[ "$partiton" == "y" ]]; then
-  blockDevice="  --partition mbr "
+if  [[ "$partition" == "y" ]]; then
+  partition="  --partition mbr "
+  echo "Using --partition mbr "
+  sleep 5
 fi
 #######################################
 ### this is bundle-work
 sudo -E $EC2_HOME/bin/ec2-version
 ##FIXME ami name not properly set (check date function)
 echo "*** Bundleing AMI, this may take several minutes "
-sudo -E $EC2_AMITOOL_HOME/bin/ec2-bundle-vol -k $AWS_PK_PATH -c $AWS_CERT_PATH -u $AWS_ACCOUNT_ID -r x86_64 -e /tmp/cert/ -d $bundle_dir -p image-$date_fmt  $blockDevice $partiton --batch
+sudo -E $EC2_AMITOOL_HOME/bin/ec2-bundle-vol -k $AWS_PK_PATH -c $AWS_CERT_PATH -u $AWS_ACCOUNT_ID -r x86_64 -e /tmp/cert/ -d $bundle_dir -p image-$date_fmt  $blockDevice $partition --batch
 ##TODO adjust ami name to ec2-bundle-vol command
 echo "*** Uploading AMI bundle to $s3_bucket "
 ec2-upload-bundle  -b $s3_bucket -m $bundle_dir/image-$date_fmt.manifest.xml -a $AWS_ACCESS_KEY -s $AWS_SECRET_KEY --region $aws_region
