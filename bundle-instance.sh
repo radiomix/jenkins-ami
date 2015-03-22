@@ -33,7 +33,7 @@ aws_region=us-west-2
 
 # descriptions
 aws_ami_description="Intermediate AMI snapshot, to be deleted after completion"
-date_fmt=$(date '+%F-%H-%M-%S')
+date_fmt=$(date '+%F-%H-%M')
 aws_ami_name="Ubuntu LTS 12.04 Jenkins-Server as of $date_fmt"
 
 # bundle directory, should be on a partition with lots of space
@@ -77,6 +77,7 @@ echo -n "Enter the root device: /dev/"
 read _device
 root_device="/dev/$_device"
 ## check for root defice
+sudo fdisk -l $root_device
 sudo file -s $root_device | grep "part /$"
 
 #######################################
@@ -123,11 +124,19 @@ if  [[ "$blockDevice" == "y" ]]; then
 fi
 
 #######################################
+### do we need --partion mbr to bundle?
+echo "Is this AMI is of virtualization type \"hvm\"? [y|N]:"
+partiotion=""
+read partition
+if  [[ "$partiton" == "y" ]]; then
+  blockDevice="  --partition mbr "
+fi
+#######################################
 ### this is bundle-work
 sudo -E $EC2_HOME/bin/ec2-version
 ##FIXME ami name not properly set (check date function)
 echo "*** Bundleing AMI, this may take several minutes "
-sudo -E $EC2_AMITOOL_HOME/bin/ec2-bundle-vol -k $AWS_PK_PATH -c $AWS_CERT_PATH -u $AWS_ACCOUNT_ID -r x86_64 -e /tmp/cert/ -d $bundle_dir -p image-$date_fmt  $blockDevice --batch
+sudo -E $EC2_AMITOOL_HOME/bin/ec2-bundle-vol -k $AWS_PK_PATH -c $AWS_CERT_PATH -u $AWS_ACCOUNT_ID -r x86_64 -e /tmp/cert/ -d $bundle_dir -p image-$date_fmt  $blockDevice $partiton --batch
 ##TODO adjust ami name to ec2-bundle-vol command
 echo "*** Uploading AMI bundle to $s3_bucket "
 ec2-upload-bundle  -b $s3_bucket -m $bundle_dir/image-$date_fmt.manifest.xml -a $AWS_ACCESS_KEY -s $AWS_SECRET_KEY --region $aws_region
