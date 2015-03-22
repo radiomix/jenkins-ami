@@ -33,8 +33,8 @@ aws_region=us-west-2
 
 # descriptions
 aws_ami_description="Intermediate AMI snapshot, to be deleted after completion"
-date=$(date)
-aws_ami_name="Ubuntu LTS 12.04 Jenkins-Server as of $date"
+date_fmt=$(date '+%F-%H-%M-%S')
+aws_ami_name="Ubuntu LTS 12.04 Jenkins-Server as of $date_fmt"
 
 # bundle directory, should be on a partition with lots of space
 bundle_dir="/mnt/image/"
@@ -47,7 +47,7 @@ if [[ ! -d $bundle_dir ]]; then
 fi
 
 # AWS S3 Bucket 
-s3_bucket="im7-backup/instance-prepared"
+s3_bucket="im7-ami/images"
 
 # x509 cert/pk file
 if [[ "$AWS_PK_PATH" == "" ]]; then
@@ -96,23 +96,25 @@ echo
 echo "Next line holds kernel parameters in /boot/grub/menu.lst:"
 grep ^kernel /boot/grub/menu.lst
 echo
-echo -n "Adjust kernel parameter in /boot/grub/menu.list to reflect command line"
-read -t 20
-sudo vi /boot/grub/menu.lst
-
+echo  "Do you want to adjust kernel parameter in /boot/grub/menu.list "
+echo -n "to reflect command line? [y|N]:"
+read edit
+if  [[ "edit" == "y" ]]; then
+  sudo vi /boot/grub/menu.lst
+fi
 #######################################
 ### remove evi entries in /etc/fstab if exist
 echo "*** Checking for efi/uefi partitions in /etc/fstab"
 efi=$(grep -i efi /etc/fstab)
 if [[ "$efi" != "" ]]; then
-  echo "Please delete these UEFI/EFI partitions:$efi ?"
+  echo "Please delete these UEFI/EFI partition entries \"$efi\" in /etc/fstab"
   read -t 20
   sudo vi /etc/fstab
 fi
 
 #######################################
 ### do we need --block-device-mapping to bundle?
-echo "If you want parameter \"--block-device-mapping \" enter [y|N]:"
+echo "Do you want to bundle with parameter \"--block-device-mapping \"? [y|N]:"
 blockDevice=""
 read blockDevice
 if  [[ "$blockDevice" == "y" ]]; then
@@ -123,11 +125,11 @@ fi
 #######################################
 ### this is bundle-work
 sudo -E $EC2_HOME/bin/ec2-version
-
+##FIXME ami name not properly set (check date function)
 echo "*** Bundleing AMI, this may take several minutes "
-sudo -E $EC2_AMITOOL_HOME/bin/ec2-bundle-vol -k $AWS_PK_PATH -c $AWS_CERT_PATH -u $AWS_ACCOUNT_ID -r x86_64 -e /tmp/cert/ -d $bundle_dir -p image-$date-fmt  $blockDevice --batch
-
+sudo -E $EC2_AMITOOL_HOME/bin/ec2-bundle-vol -k $AWS_PK_PATH -c $AWS_CERT_PATH -u $AWS_ACCOUNT_ID -r x86_64 -e /tmp/cert/ -d $bundle_dir -p image-$date_fmt  $blockDevice --batch
+##TODO adjust ami name to ec2-bundle-vol command
 echo "*** Uploading AMI bundle to $s3_bucket "
-ec2-upload-bundle  -b $s3_bucket -m $bundle_dir/image-$date-fmt.manifest.xml -a $AWS_ACCESS_KEY -s $AWS_SECRET_KEY --region $aws_region
+ec2-upload-bundle  -b $s3_bucket -m $bundle_dir/image-$date_fmt.manifest.xml -a $AWS_ACCESS_KEY -s $AWS_SECRET_KEY --region $aws_region
 echo "*** Registering images"
-ec2-register  $s3_bucket/image-sda-$date-fmt.manifest.xml -n $aws_ami_name -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY --region $aws_region
+ec2-register  $s3_bucket/image-sda-$date_fmt.manifest.xml -n $aws_ami_name -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY --region $aws_region
