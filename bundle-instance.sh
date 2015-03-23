@@ -123,6 +123,7 @@ blockDevice=""
 read blockDevice
 if  [[ "$blockDevice" == "y" ]]; then
   echo "Root device is set to \"$root_dev\. Select root device [sda|xvda] in device mapping:[s|X]" 
+  read blockDevice
   if  [[ "$blockDevice" == "s" ]]; then
     blockDevice="  --block-device-mapping ami=sda,root=/dev/sda1 "
     prefix=$prefix"-sda"
