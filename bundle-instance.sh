@@ -125,7 +125,7 @@ fi
 
 #######################################
 ## on hvm AMI we need mbr/hvm parameters
-echo "Is this AMI is of virtualization type \"hvm\"? [y|N]:"
+echo "Is this AMI of virtualization type \"hvm\"? [y|N]:"
 partition=""
 virtual_type="--virtualization-type paravirtual"
 read partition
@@ -141,10 +141,10 @@ fi
 sudo -E $EC2_HOME/bin/ec2-version
 ##FIXME ami name not properly set (check date function)
 echo "*** Bundleing AMI, this may take several minutes "
-sudo -E $EC2_AMITOOL_HOME/bin/ec2-bundle-vol -v -k $AWS_PK_PATH -c $AWS_CERT_PATH -u $AWS_ACCOUNT_ID -r x86_64 -e /tmp/cert/ -d $bundle_dir -p image-$date_fmt  $blockDevice $partition --batch
+sudo -E $EC2_AMITOOL_HOME/bin/ec2-bundle-vol -k $AWS_PK_PATH -c $AWS_CERT_PATH -u $AWS_ACCOUNT_ID -r x86_64 -e /tmp/cert/ -d $bundle_dir -p image-$date_fmt  $blockDevice $partition --batch
 ##TODO adjust ami name to ec2-bundle-vol command
 echo "*** Uploading AMI bundle to $s3_bucket "
-ec2-upload-bundle -v -b $s3_bucket -m $bundle_dir/image-$date_fmt.manifest.xml -a $AWS_ACCESS_KEY -s $AWS_SECRET_KEY --region $aws_region
+ec2-upload-bundle -b $s3_bucket -m $bundle_dir/image-$date_fmt.manifest.xml -a $AWS_ACCESS_KEY -s $AWS_SECRET_KEY --region $aws_region
 echo "*** Registering images"
 ec2-register   $s3_bucket/image-sda-$date_fmt.manifest.xml -v $virtual_type -n "$aws_ami_name" -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY --region $aws_region
 echo "*** "
