@@ -133,6 +133,7 @@ if  [[ "$partition" == "y" ]]; then
   partition="  --partition mbr "
   virtual_type="--virtualization-type hvm"
   echo "Using --partition mbr "
+  echo "Using --virtualization-type hvm "
   sleep 5
 fi
 
