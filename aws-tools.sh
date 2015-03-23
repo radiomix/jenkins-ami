@@ -31,7 +31,7 @@ aws_region=us-west-2
 ## packages needed anyways
 echo "*** Installing packages 'ruby openjdk-7 unzip wget'"
 sudo apt-get -q update
-sudo apt-get -q install -y ruby openjdk-7-jre unzip wget
+sudo apt-get -q install -y --force-yes ruby openjdk-7-jre unzip wget
 ## we experienced curl SSL errors as in
 ## http://tiku.io/questions/3051603/amazon-ec2-s3-self-signed-certificate-ssl-failure-when-using-ec2-upload-bundle
 ## so we reload the root certificates 
