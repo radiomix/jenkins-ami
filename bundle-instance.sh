@@ -47,7 +47,7 @@ if [[ ! -d $bundle_dir ]]; then
 fi
 
 # AWS S3 Bucket 
-s3_bucket="im7-ami/images"
+s3_bucket="im7-ami/images/copied/"
 
 # x509 cert/pk file
 if [[ "$AWS_PK_PATH" == "" ]]; then
@@ -58,6 +58,9 @@ if [[ "$AWS_CERT_PATH" == "" ]]; then
   echo " ERROR: X509 cert key file \"$AWS_CERT_PATH\" not found!! "
   exit -22
 fi
+
+# image file prefix
+prefix="copied"
 
 ## config variables
 
@@ -119,8 +122,15 @@ echo "Do you want to bundle with parameter \"--block-device-mapping \"? [y|N]:"
 blockDevice=""
 read blockDevice
 if  [[ "$blockDevice" == "y" ]]; then
-  blockDevice="  --block-device-mapping ami=sda,root=/dev/sda1 "
-  echo "Using  --block-device-mapping ami=sda,root=/dev/sda1 "
+  echo "Root device is set to \"$root_dev\. Select root device [sda|xvda] in device mapping:[s|X]" 
+  if  [[ "$blockDevice" == "s" ]]; then
+    blockDevice="  --block-device-mapping ami=sda,root=/dev/sda1 "
+    prefix=$prefix"-sda"
+  else
+    blockDevice="  --block-device-mapping ami=xvda,root=/dev/xvda1 "
+    prefix=$prefix"-xvda"
+  fi
+  echo "Using \"$blockDevice\"  "
 fi
 
 #######################################
@@ -142,12 +152,12 @@ fi
 sudo -E $EC2_HOME/bin/ec2-version
 ##FIXME ami name not properly set (check date function)
 echo "*** Bundleing AMI, this may take several minutes "
-sudo -E $EC2_AMITOOL_HOME/bin/ec2-bundle-vol -k $AWS_PK_PATH -c $AWS_CERT_PATH -u $AWS_ACCOUNT_ID -r x86_64 -e /tmp/cert/ -d $bundle_dir -p image-$date_fmt  $blockDevice $partition --batch
+sudo -E $EC2_AMITOOL_HOME/bin/ec2-bundle-vol -k $AWS_PK_PATH -c $AWS_CERT_PATH -u $AWS_ACCOUNT_ID -r x86_64 -e /tmp/cert/ -d $bundle_dir -p $prefix$date_fmt  $blockDevice $partition --batch
 ##TODO adjust ami name to ec2-bundle-vol command
 echo "*** Uploading AMI bundle to $s3_bucket "
-ec2-upload-bundle -b $s3_bucket -m $bundle_dir/image-$date_fmt.manifest.xml -a $AWS_ACCESS_KEY -s $AWS_SECRET_KEY --region $aws_region
+ec2-upload-bundle -b $s3_bucket -m $bundle_dir/$prefix$date_fmt.manifest.xml -a $AWS_ACCESS_KEY -s $AWS_SECRET_KEY --region $aws_region
 echo "*** Registering images"
-ec2-register   $s3_bucket/image-sda-$date_fmt.manifest.xml -v $virtual_type -n "$aws_ami_name" -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY --region $aws_region
+ec2-register   $s3_bucket/$prefix$date_fmt.manifest.xml -v $virtual_type -n "$aws_ami_name" -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY --region $aws_region
 echo "*** "
 echo "*** PARAMETER USED:"
 echo "*** Root device:$root_device"
