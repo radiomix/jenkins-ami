@@ -60,7 +60,7 @@ if [[ "$AWS_CERT_PATH" == "" ]]; then
 fi
 
 # image file prefix
-prefix="copied"
+prefix="bundle-instance-"
 
 ## config variables
 
@@ -103,7 +103,7 @@ echo
 echo  "Do you want to adjust kernel parameter in /boot/grub/menu.list "
 echo -n "to reflect command line? [y|N]:"
 read edit
-if  [[ "edit" == "y" ]]; then
+if  [[ "$edit" == "y" ]]; then
   sudo vi /boot/grub/menu.lst
 fi
 #######################################
@@ -126,10 +126,10 @@ if  [[ "$blockDevice" == "y" ]]; then
   read blockDevice
   if  [[ "$blockDevice" == "s" ]]; then
     blockDevice="  --block-device-mapping ami=sda,root=/dev/sda1 "
-    prefix=$prefix"-sda-"
+    prefix=$prefix"sda-"
   else
     blockDevice="  --block-device-mapping ami=xvda,root=/dev/xvda1 "
-    prefix=$prefix"-xvda-"
+    prefix=$prefix"xvda-"
   fi
   echo "Using \"$blockDevice\"  "
 fi
@@ -141,6 +141,7 @@ partition=""
 virtual_type="--virtualization-type paravirtual"
 read partition
 if  [[ "$partition" == "y" ]]; then
+  prefix=$prefix"hvm-"
   partition="  --partition mbr "
   virtual_type="--virtualization-type hvm"
   echo "Using --partition mbr "
