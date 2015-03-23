@@ -124,7 +124,7 @@ if  [[ "$blockDevice" == "y" ]]; then
 fi
 
 #######################################
-### do we need --partion mbr to bundle?
+## on hvm AMI we need mbr/hvm parameters
 echo "Is this AMI is of virtualization type \"hvm\"? [y|N]:"
 partition=""
 virtual_type="--virtualization-type paravirtual"
@@ -135,6 +135,7 @@ if  [[ "$partition" == "y" ]]; then
   echo "Using --partition mbr "
   sleep 5
 fi
+
 #######################################
 ### this is bundle-work
 sudo -E $EC2_HOME/bin/ec2-version
