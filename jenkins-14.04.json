@@ -4,7 +4,7 @@
     "aws_secret_key":"",
     "aws_account_id":"5586-1770-0099",
     "security_group_id":"sg-e6908584",
-    "aws_s3_bucket":"im7-backup/instance-jenkins-empty"
+    "aws_s3_bucket":"im7-ami/images/instance-jenkins-hvm"
   },
   "builders":[
     {
@@ -27,10 +27,10 @@
 
       "bundle_upload_command": "sudo -n bash -c ' export JAVA_HOME=/usr/local/java/jdk1.8.0_05 ; export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin:$JAVA_HOME/bin ; /usr/local/ec2/bin/ec2-upload-bundle -b {{.BucketName}} -m {{.ManifestPath}} -a {{.AccessKey}} -s {{.SecretKey}} -d {{.BundleDirectory}} --batch --region {{.Region}} --retry'",
 
-      "ami_name":"14.04-jenkins-instance-{{isotime | clean_ami_name}}",
+      "ami_name":"14.04-jenkins-instance-hvm-ami-29ebb519-{{isotime | clean_ami_name}}",
       "security_group_id":"",
       "tags": {
-        "Name": "14.04-Jenkins (Instance)-{{isotime | clean_ami_name}}"
+        "Name": "14.04-Jenkins (Instance hvm)-from-ami-29ebb519-{{isotime | clean_ami_name}}"
       }
     }
   ],
