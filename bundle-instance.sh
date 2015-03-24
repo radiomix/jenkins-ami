@@ -122,30 +122,42 @@ echo "Do you want to bundle with parameter \"--block-device-mapping \"? [y|N]:"
 blockDevice=""
 read blockDevice
 if  [[ "$blockDevice" == "y" ]]; then
-  echo "Root device is set to \"$root_device\. Select root device [sda|xvda] in device mapping:[s|X]" 
+  echo "Root device is set to \"$root_device\. Select root device [sda|xvda] in device mapping:[x|S]" 
   read blockDevice
-  if  [[ "$blockDevice" == "s" ]]; then
-    blockDevice="  --block-device-mapping ami=sda,root=/dev/sda1 "
-    prefix=$prefix"sda-"
-  else
+  if  [[ "$blockDevice" == "x" ]]; then
     blockDevice="  --block-device-mapping ami=xvda,root=/dev/xvda1 "
     prefix=$prefix"xvda-"
+  else
+    blockDevice="  --block-device-mapping ami=sda,root=/dev/sda1 "
+    prefix=$prefix"sda-"
   fi
   echo "Using \"$blockDevice\"  "
 fi
 
 #######################################
-## on hvm AMI we need mbr/hvm parameters
-echo "Is this AMI of virtualization type \"hvm\"? [y|N]:"
+### what virtualisation type are we?
+### we check curl -s http://169.254.169.254/latest/meta-data/profile/ 
+### returning [default-paravirtual|default-hvm]
+meta_data_profile=$(curl -s http://169.254.169.254/latest/meta-data/profile/ | grep "default-")
+profile=${meta_data_profile##default-}
+echo "Guessing virtualisation type:$profile"
+## on paravirtual AMI every thing is fine here
 partition=""
-virtual_type="--virtualization-type paravirtual"
-read partition
-if  [[ "$partition" == "y" ]]; then
-  prefix=$prefix"hvm-"
-  partition="  --partition mbr "
-  virtual_type="--virtualization-type hvm"
-  echo "Using --partition mbr "
-  echo "Using --virtualization-type hvm "
+virtual_type=""
+## on hvm AMI we might(???) set partition mbr and virtualisation-type hvm 
+echo "Do you want the virtualisation parameter added? [y|N]"
+read parameter
+if [[ "$parameter" == "y" ]]; then
+  virtual_type="--virtualization-type $profile "
+  if  [[ "$profile" == "hvm" ]]; then
+    prefix=$prefix"hvm-"
+    partition="  --partition mbr "
+  else
+    prefix=$prefix"paravirtual-"
+    partition="  --partition gpa"
+  fi
+  echo "Using: $partition"
+  echo "Using: $virtual_type"
   sleep 5
 fi
 
