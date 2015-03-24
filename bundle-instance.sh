@@ -34,7 +34,7 @@ aws_region=us-west-2
 # descriptions
 aws_ami_description="Intermediate AMI snapshot, to be deleted after completion"
 date_fmt=$(date '+%F-%H-%M')
-aws_ami_name="Ubuntu LTS 12.04 Jenkins-Server as of $date_fmt"
+aws_ami_name="Ubuntu-LTS-12.04-bundle-instance-$date_fmt"
 
 # bundle directory, should be on a partition with lots of space
 bundle_dir="/mnt/image/"
@@ -127,20 +127,15 @@ echo "Guessing virtualisation type:$profile"
 partition=""
 virtual_type=""
 ## on hvm AMI we might(???) set partition mbr and virtualisation-type hvm 
-echo "Do you want the virtualisation parameter added? [y|N]"
+echo "Do you want to register with virtualisation parameter? [y|N]"
 read parameter
+s3_bucket=$s3_bucket"paravirtual/"
 if [[ "$parameter" == "y" ]]; then
   virtual_type="--virtualization-type $profile "
   if  [[ "$profile" == "hvm" ]]; then
     s3_bucket=$s3_bucket"hvm/"
     partition="  --partition mbr "
-  else
-    s3_bucket=$s3_bucket"paravirtual/"
-    partition="  --partition gpt"
   fi
-  echo "Using: $partition"
-  echo "Using: $virtual_type"
-  sleep 5
 fi
 
 #######################################
@@ -160,8 +155,13 @@ if  [[ "$blockDevice" == "y" ]]; then
     prefix=$prefix"sda-"
     s3_bucket=$s3_bucket"/sda"
   fi
-  echo "Using \"$blockDevice\"  "
 fi
+
+echo "Using partition:     $partition"
+echo "Using virtual_type:  $virtual_type"
+echo "Using block_device:  $blockDevice"
+echo "Using s3_bucket:     $s3_bucket"
+sleep 5
 
 #######################################
 ### this is bundle-work
