@@ -36,6 +36,11 @@ if [[ "$aws_region" == "" ]]; then
 fi
 echo "Using region: $aws_region"
 
+# kernel
+###TODO: select the proper PVGRUB kernel according to region and architecture
+kernel=" --kernel aki-fc8f11cc" #x86_64 PVGRUB for regions us-west-2 
+echo "Using kernel: $kernel"
+
 # descriptions
 aws_ami_description="Intermediate AMI snapshot, to be deleted after completion"
 date_fmt=$(date '+%F-%H-%M')
@@ -138,8 +143,6 @@ s3_bucket=$s3_bucket"paravirtual/"
 if [[ "$parameter" == "y" ]]; then
   virtual_type="--virtualization-type $profile "
   if  [[ "$profile" == "hvm" ]]; then
-###TODO: select the proper PVGRUB kernel for hvm
-    kernel=" --kernel aki-fc8f11cc" #x86_64 PVGRUB for regions us-west-2 
     s3_bucket=$s3_bucket"hvm/"
     partition="  --partition mbr "
   fi
