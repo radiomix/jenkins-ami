@@ -149,16 +149,17 @@ profile=${meta_data_profile##default-}
 ### remember virtual. type in s3-bucket name and parameter virtual. type
 s3_bucket=$s3_bucket"/"$profile
 virtual_type="--virtualization-type "$profile" "
+aws_ami_name=$aws_ami_name"-"$profile
 
-echo "Guessing virtualization type:$profile"
+echo "*** Guessing virtualization type:$profile"
 ## on paravirtual AMI every thing is fine here
 partition=""
-## for hvm AMI we set partition mbr and kernel
+## for hvm AMI we set partition mbr
 echo "Is virtualization type:$profile correct? [y|N]"
 read parameter
 if [[ "$parameter" == "y" ]]; then
   if  [[ "$profile" == "hvm" ]]; then
-    kernel=" --kernel "$AWS_KERNEL" "
+    #kernel=" --kernel "$AWS_KERNEL" " ###TODO: kernel not allowed with HVM AMIs
     partition="  --partition mbr "
   fi
 fi
