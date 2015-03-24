@@ -1,31 +1,31 @@
 #!/bin/bash
 # Prepare an AMI with the AWS API/AMI tools
 #   http://docs.aws.amazon.com/AWSEC2/latest/CommandLineReference/set-up-ec2-cli-linux.html
-#   http://docs.aws.amazon.com/AWSEC2/latest/CommandLineReference/set-up-ami-tools.html  
-# Prerequests:  
-#   - we need installed: 
+#   http://docs.aws.amazon.com/AWSEC2/latest/CommandLineReference/set-up-ami-tools.html
+# Prerequests:
+#   - we need installed:
 #		ruby, openjdk-7-jre, unzip, wget
-#   - we need to export our $AWS_ACCESS_KEY and $AWS_SECRET_KEY as enironment variables like:  
-#       export AWS_ACCESS_KEY=your_access_key_id  
-#       export AWS_SECRET_KEY=your_secret_access_key  
-#   - some commands need sudo rights  
+#   - we need to export our $AWS_ACCESS_KEY and $AWS_SECRET_KEY as enironment variables like:
+#       export AWS_ACCESS_KEY=your_access_key_id
+#       export AWS_SECRET_KEY=your_secret_access_key
+#   - some commands need sudo rights
 #   - we need our AWS x509-pk/cert files on this machine
 #
 # CAUTION: to export env variables properly, this script should be called
 #  $:>. aws-tools.sh
 #
-#######################################  
-## config variables  
+#######################################
+## config variables
 
 # aws credentials, mayb in env variables?
 aws_secret_key=$AWS_SECRET_KEY
 aws_access_key=$AWS_ACCESS_KEY
 aws_account_id=$AWS_ACCOUNT_ID
-  
-# region  
-aws_region=us-west-2  
 
-## config variables  
+# region
+aws_region=$AWS_REGION
+
+## config variables
 
 ######################################
 ## packages needed anyways
@@ -34,7 +34,7 @@ sudo apt-get -q update
 sudo apt-get -q install -y --force-yes ruby openjdk-7-jre unzip wget
 ## we experienced curl SSL errors as in
 ## http://tiku.io/questions/3051603/amazon-ec2-s3-self-signed-certificate-ssl-failure-when-using-ec2-upload-bundle
-## so we reload the root certificates 
+## so we reload the root certificates
 sudo update-ca-certificates
 
 ######################################
@@ -103,6 +103,11 @@ then
   export AWS_ACCOUNT_ID=$aws_account_id
 fi
 
+if [[ "$aws_region" == "" ]]; then
+    echo -n "Please give the AWS region:"
+    read aws_region
+ fi
+export AWS_REGION=$aws_region
 export AWS_ACCESS_KEY
 export AWS_SECRET_KEY
 export AWS_ACCOUND_ID
@@ -113,6 +118,7 @@ echo
 echo "*** Using AWS_ACCESS_KEY: \"$aws_access_key\""
 echo "*** Using AWS_SECRET_KEY: \"$aws_secret_key\""
 echo "*** Using AWS_ACCOUNT_ID: \"$aws_account_id\""
+echo "*** Using AWS_REGION:     \"$aws_region\""
 echo
 
 ######################################
