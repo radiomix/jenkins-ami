@@ -122,7 +122,7 @@ echo "Do you want to bundle with parameter \"--block-device-mapping \"? [y|N]:"
 blockDevice=""
 read blockDevice
 if  [[ "$blockDevice" == "y" ]]; then
-  echo "Root device is set to \"$root_device\". Select root device [sda|xvda] in device mapping:[x|S]" 
+  echo "Root device is set to \"$root_device\". Select root device [xvda|sda] in device mapping:[x|S]" 
   read blockDevice
   if  [[ "$blockDevice" == "x" ]]; then
     blockDevice="  --block-device-mapping ami=xvda,root=/dev/xvda1 "
