@@ -122,17 +122,17 @@ if [[ "$efi" != "" ]]; then
 fi
 
 #######################################
-### what virtualisation type are we?
+### what virtualization type are we?
 ### we check curl -s http://169.254.169.254/latest/meta-data/profile/
 ### returning [default-paravirtual|default-hvm]
 meta_data_profile=$(curl -s http://169.254.169.254/latest/meta-data/profile/ | grep "default-")
 profile=${meta_data_profile##default-}
-echo "Guessing virtualisation type:$profile"
+echo "Guessing virtualization type:$profile"
 ## on paravirtual AMI every thing is fine here
 partition=""
 virtual_type=""
-## on hvm AMI we might(???) set partition mbr and virtualisation-type hvm
-echo "Do you want to register with virtualisation parameter? [y|N]"
+## on hvm AMI we might(???) set partition mbr and virtualization-type hvm
+echo "Do you want to register with virtualization parameter? [y|N]"
 read parameter
 s3_bucket=$s3_bucket"paravirtual/"
 if [[ "$parameter" == "y" ]]; then
@@ -188,7 +188,7 @@ echo "*** Grub version:"$(grub --version)
 echo "*** Bundle folder:$bundle_dir"
 echo "*** Block device mapping:$blockDevice"
 echo "*** Partition flag:$partition"
-echo "*** Virtualisation:$virtual_type"
+echo "*** Virtualization:$virtual_type"
 echo "*** S3 Bucket:$s3_bucket"
 echo "*** Region:$aws_region"
 echo "*** AMI name:$aws_ami_name"
