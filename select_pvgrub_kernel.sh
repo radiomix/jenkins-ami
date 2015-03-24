@@ -13,7 +13,7 @@
 aws_region=$AWS_REGION
 if [[ "$aws_region" == "" ]]; then
    echo " ERROR: No AWS_REGION given!! "
-   exit -2
+   return -2
 fi
 echo "Using region: $AWS_REGION"
 
@@ -21,7 +21,7 @@ echo "Using region: $AWS_REGION"
 aws_architecture=$AWS_ARCHITECTURE
 if [[ "$aws_architecture" == "" ]]; then
     echo " ERROR: No AWS_ARCHITECTURE given!! "
-    exit -3
+    return -3
 fi
 echo "Using architecture: $AWS_ARCHITECTURE"
 

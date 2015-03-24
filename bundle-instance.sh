@@ -32,7 +32,7 @@ aws_secret_key=$AWS_SECRET_KEY
 aws_region=$AWS_REGION
 if [[ "$aws_region" == "" ]]; then
   echo " ERROR: No AWS_REGION given!! "
-  exit -2
+  return -2
 fi
 echo "Using region: $aws_region"
 
@@ -40,7 +40,7 @@ echo "Using region: $aws_region"
 aws_architecture=$AWS_ARCHITECTURE
 if [[ "$aws_architecture" == "" ]]; then
   echo " ERROR: No AWS_ARCHITECTURE given!! "
-  exit -3
+  return -3
 fi
 echo "Using region: $aws_region"
 
@@ -50,12 +50,13 @@ source select_pvgrub_kernel.sh
 aws_kernel=$AWS_KERNEL
 if [[ "$aws_kernel" == "" ]]; then
   echo " ERROR: No AWS_KERNEL given!! "
-  exit -4
+  return -4
 fi
 echo "Using kernel: $AWS_KERNEL"
+kernel="" #gets set within HVM profile
 
 # descriptions
-aws_ami_description="Intermediate AMI snapshot, to be deleted after completion"
+aws_ami_description="Intermediate AMI snapshot, for backup-reasons"
 date_fmt=$(date '+%F-%H-%M')
 aws_ami_name="Ubuntu-LTS-12.04-bundle-instance-$date_fmt"
 
@@ -66,7 +67,7 @@ if [[ ! -d $bundle_dir ]]; then
 fi
 if [[ ! -d $bundle_dir ]]; then
   echo " ERROR: directory $bundle_dir to bundle the image is not writable!! "
-  exit -11
+  return -11
 fi
 
 # AWS S3 Bucket 
@@ -75,11 +76,11 @@ s3_bucket="im7-ami/images/copied/"
 # x509 cert/pk file
 if [[ "$AWS_PK_PATH" == "" ]]; then
   echo " ERROR: X509 private key file \"$AWS_PK_PATH\" not found!! "
-  exit -21
+  return -21
 fi
 if [[ "$AWS_CERT_PATH" == "" ]]; then
   echo " ERROR: X509 cert key file \"$AWS_CERT_PATH\" not found!! "
-  exit -22
+  return -22
 fi
 
 # image file prefix
@@ -145,18 +146,19 @@ fi
 ### returning [default-paravirtual|default-hvm]
 meta_data_profile=$(curl -s http://169.254.169.254/latest/meta-data/profile/ | grep "default-")
 profile=${meta_data_profile##default-}
+### remember virtual. type in s3-bucket name and parameter virtual. type
+s3_bucket=$s3_bucket"/"$profile
+virtual_type="--virtualization-type "$profile" "
+
 echo "Guessing virtualization type:$profile"
 ## on paravirtual AMI every thing is fine here
 partition=""
-virtual_type=""
-## on hvm AMI we might(???) set partition mbr and virtualization-type hvm
-echo "Do you want to register with virtualization parameter? [y|N]"
+## for hvm AMI we set partition mbr and kernel
+echo "Is virtualization type:$profile correct? [y|N]"
 read parameter
-s3_bucket=$s3_bucket"paravirtual/"
 if [[ "$parameter" == "y" ]]; then
-  virtual_type="--virtualization-type $profile "
   if  [[ "$profile" == "hvm" ]]; then
-    s3_bucket=$s3_bucket"hvm/"
+    kernel=" --kernel "$AWS_KERNEL" "
     partition="  --partition mbr "
   fi
 fi
@@ -164,7 +166,6 @@ fi
 #######################################
 ### do we need --block-device-mapping to bundle?
 echo "Do you want to bundle with parameter \"--block-device-mapping \"? [y|N]:"
-blockDevice=""
 read blockDevice
 if  [[ "$blockDevice" == "y" ]]; then
   echo "Root device is set to \"$root_device\". Select root device [xvda|sda] in device mapping:[x|S]"
@@ -178,36 +179,41 @@ if  [[ "$blockDevice" == "y" ]]; then
     prefix=$prefix"sda-"
     s3_bucket=$s3_bucket"/sda"
   fi
+else
+    blockDevice=""
 fi
 
 echo "Using partition:     $partition"
 echo "Using virtual_type:  $virtual_type"
 echo "Using block_device:  $blockDevice"
 echo "Using s3_bucket:     $s3_bucket"
+echo "Using kernel:        $kernel"
 sleep 5
 
 #######################################
 ### this is bundle-work
 sudo -E $EC2_HOME/bin/ec2-version
-##FIXME ami name not properly set (check date function)
 echo "*** Bundleing AMI, this may take several minutes "
+set -x
 sudo -E $EC2_AMITOOL_HOME/bin/ec2-bundle-vol -k $AWS_PK_PATH -c $AWS_CERT_PATH -u $AWS_ACCOUNT_ID -r x86_64 -e /tmp/cert/ -d $bundle_dir -p $prefix$date_fmt  $blockDevice $partition --batch
 ##TODO adjust ami name to ec2-bundle-vol command
 echo "*** Uploading AMI bundle to $s3_bucket "
 ec2-upload-bundle -b $s3_bucket -m $bundle_dir/$prefix$date_fmt.manifest.xml -a $AWS_ACCESS_KEY -s $AWS_SECRET_KEY --region $aws_region
 echo "*** Registering images"
-ec2-register   $s3_bucket/$prefix$date_fmt.manifest.xml $virtual_type -n "$aws_ami_name" -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY --region $aws_region --architecture $aws_architecture $aws_kernel
+ec2-register   $s3_bucket/$prefix$date_fmt.manifest.xml $virtual_type -n "$aws_ami_name" -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY --region $aws_region --architecture $aws_architecture $kernel
+set +x
 echo "*** "
 echo "*** PARAMETER USED:"
-echo "*** Root device:$root_device"
+echo "*** Root device:"$root_device
 echo "*** Grub version:"$(grub --version)
-echo "*** Bundle folder:$bundle_dir"
-echo "*** Block device mapping:$blockDevice"
-echo "*** Partition flag:$partition"
-echo "*** Virtualization:$virtual_type"
-echo "*** S3 Bucket:$s3_bucket"
-echo "*** Region:$aws_region"
-echo "*** AMI name:$aws_ami_name"
+echo "*** Bundle folder:"$bundle_dir
+echo "*** Block device mapping:"$blockDevice
+echo "*** Partition flag:"$partition
+echo "*** Virtualization:"$virtual_type
+echo "*** S3 Bucket:"$s3_bucket
+echo "*** Region:"$aws_region
+echo "*** AMI name:"$aws_ami_name
+echo "*** Kernel:"$kernel
 echo "*** "
 echo "*** FINISHED BUNDLING THE AMI"
 
