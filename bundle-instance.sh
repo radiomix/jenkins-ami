@@ -32,10 +32,17 @@ aws_secret_key=$AWS_SECRET_KEY
 aws_region=$AWS_REGION
 if [[ "$aws_region" == "" ]]; then
   echo " ERROR: No AWS_REGION given!! "
-  exit 20
+  exit -2
 fi
 echo "Using region: $aws_region"
 
+# architecture
+aws_architecture=$AWS_ARCHITECTURE
+if [[ "$aws_architecture" == "" ]]; then
+  echo " ERROR: No AWS_ARCHITECTURE given!! "
+  exit -3
+fi
+echo "Using region: $aws_region"
 # kernel
 ###TODO: select the proper PVGRUB kernel according to region and architecture
 kernel=" --kernel aki-fc8f11cc" #x86_64 PVGRUB for regions us-west-2 
