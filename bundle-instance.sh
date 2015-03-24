@@ -117,24 +117,6 @@ if [[ "$efi" != "" ]]; then
 fi
 
 #######################################
-### do we need --block-device-mapping to bundle?
-echo "Do you want to bundle with parameter \"--block-device-mapping \"? [y|N]:"
-blockDevice=""
-read blockDevice
-if  [[ "$blockDevice" == "y" ]]; then
-  echo "Root device is set to \"$root_device\". Select root device [xvda|sda] in device mapping:[x|S]" 
-  read blockDevice
-  if  [[ "$blockDevice" == "x" ]]; then
-    blockDevice="  --block-device-mapping ami=xvda,root=/dev/xvda1 "
-    prefix=$prefix"xvda-"
-  else
-    blockDevice="  --block-device-mapping ami=sda,root=/dev/sda1 "
-    prefix=$prefix"sda-"
-  fi
-  echo "Using \"$blockDevice\"  "
-fi
-
-#######################################
 ### what virtualisation type are we?
 ### we check curl -s http://169.254.169.254/latest/meta-data/profile/ 
 ### returning [default-paravirtual|default-hvm]
@@ -150,15 +132,35 @@ read parameter
 if [[ "$parameter" == "y" ]]; then
   virtual_type="--virtualization-type $profile "
   if  [[ "$profile" == "hvm" ]]; then
-    prefix=$prefix"hvm-"
+    s3_bucket=$s3_bucket"hvm/"
     partition="  --partition mbr "
   else
-    prefix=$prefix"paravirtual-"
-    partition="  --partition gpa"
+    s3_bucket=$s3_bucket"paravirtual/"
+    partition="  --partition gpt"
   fi
   echo "Using: $partition"
   echo "Using: $virtual_type"
   sleep 5
+fi
+
+#######################################
+### do we need --block-device-mapping to bundle?
+echo "Do you want to bundle with parameter \"--block-device-mapping \"? [y|N]:"
+blockDevice=""
+read blockDevice
+if  [[ "$blockDevice" == "y" ]]; then
+  echo "Root device is set to \"$root_device\". Select root device [xvda|sda] in device mapping:[x|S]" 
+  read blockDevice
+  if  [[ "$blockDevice" == "x" ]]; then
+    blockDevice="  --block-device-mapping ami=xvda,root=/dev/xvda1 "
+    prefix=$prefix"xvda-"
+    s3_bucket=$s3_bucket"/xvda"
+  else
+    blockDevice="  --block-device-mapping ami=sda,root=/dev/sda1 "
+    prefix=$prefix"sda-"
+    s3_bucket=$s3_bucket"/sda"
+  fi
+  echo "Using \"$blockDevice\"  "
 fi
 
 #######################################
