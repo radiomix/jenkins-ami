@@ -139,7 +139,7 @@ if [[ "$parameter" == "y" ]]; then
   virtual_type="--virtualization-type $profile "
   if  [[ "$profile" == "hvm" ]]; then
 ###TODO: select the proper PVGRUB kernel for hvm
-    $kernel=" --kernel aki-fc8f11cc" #x86_64 PVGRUB for regions us-west-2 
+    kernel=" --kernel aki-fc8f11cc" #x86_64 PVGRUB for regions us-west-2 
     s3_bucket=$s3_bucket"hvm/"
     partition="  --partition mbr "
   fi
