@@ -25,6 +25,9 @@ aws_account_id=$AWS_ACCOUNT_ID
 # region
 aws_region=$AWS_REGION
 
+# architecture
+aws_architecture=$AWS_ARCHITECTURE
+
 ## config variables
 
 ######################################
@@ -106,19 +109,30 @@ fi
 if [[ "$aws_region" == "" ]]; then
     echo -n "Please give the AWS region:"
     read aws_region
- fi
-export AWS_REGION=$aws_region
+    export AWS_REGION=$aws_region
+fi
+
+if [[ "$aws_architecture" == "" ]]; then
+    echo -n "Please give the AWS region:"
+    read aws_region
+    export AWS_ARCHITECTURE=$aws_architecture
+fi
+
 export AWS_ACCESS_KEY
 export AWS_SECRET_KEY
 export AWS_ACCOUND_ID
+export AWS_REGION
+export AWS_ARCHITECTURE
+
 aws_access_key=${AWS_ACCESS_KEY:0:3}********${AWS_ACCESS_KEY:${#AWS_ACCESS_KEY}-3:3}
 aws_secret_key=${AWS_SECRET_KEY:0:3}********${AWS_SECRET_KEY:${#AWS_SECRET_KEY}-3:3}
 aws_account_id=${AWS_ACCOUNT_ID:0:3}********${AWS_ACCOUNT_ID:${#AWS_ACCOUNT_ID}-3:3}
 echo
-echo "*** Using AWS_ACCESS_KEY: \"$aws_access_key\""
-echo "*** Using AWS_SECRET_KEY: \"$aws_secret_key\""
-echo "*** Using AWS_ACCOUNT_ID: \"$aws_account_id\""
-echo "*** Using AWS_REGION:     \"$aws_region\""
+echo "*** Using AWS_ACCESS_KEY:   \"$aws_access_key\""
+echo "*** Using AWS_SECRET_KEY:   \"$aws_secret_key\""
+echo "*** Using AWS_ACCOUNT_ID:   \"$aws_account_id\""
+echo "*** Using AWS_REGION:       \"$aws_region\""
+echo "*** Using AWS_ARCHITECTURE: \"$aws_architecture\""
 echo
 
 ######################################
