@@ -43,10 +43,16 @@ if [[ "$aws_architecture" == "" ]]; then
   exit -3
 fi
 echo "Using region: $aws_region"
+
+#kernel=" --kernel aki-fc8f11cc" #x86_64 PVGRUB for regions us-west-2
 # kernel
-###TODO: select the proper PVGRUB kernel according to region and architecture
-kernel=" --kernel aki-fc8f11cc" #x86_64 PVGRUB for regions us-west-2 
-echo "Using kernel: $kernel"
+source select_pvgrub_kernel.sh
+aws_kernel=$AWS_KERNEL
+if [[ "$aws_kernel" == "" ]]; then
+  echo " ERROR: No AWS_KERNEL given!! "
+  exit -4
+fi
+echo "Using kernel: $AWS_KERNEL"
 
 # descriptions
 aws_ami_description="Intermediate AMI snapshot, to be deleted after completion"
@@ -190,7 +196,7 @@ sudo -E $EC2_AMITOOL_HOME/bin/ec2-bundle-vol -k $AWS_PK_PATH -c $AWS_CERT_PATH -
 echo "*** Uploading AMI bundle to $s3_bucket "
 ec2-upload-bundle -b $s3_bucket -m $bundle_dir/$prefix$date_fmt.manifest.xml -a $AWS_ACCESS_KEY -s $AWS_SECRET_KEY --region $aws_region
 echo "*** Registering images"
-ec2-register   $s3_bucket/$prefix$date_fmt.manifest.xml -v $virtual_type -n "$aws_ami_name" -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY --region $aws_region --architecture $aws_architecture $kernel
+ec2-register   $s3_bucket/$prefix$date_fmt.manifest.xml -v $virtual_type -n "$aws_ami_name" -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY --region $aws_region --architecture $aws_architecture $aws_kernel
 echo "*** "
 echo "*** PARAMETER USED:"
 echo "*** Root device:$root_device"
