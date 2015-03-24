@@ -106,6 +106,12 @@ then
   export AWS_ACCOUNT_ID=$aws_account_id
 fi
 
+if [[ "$aws_region" == "" ]]; then
+    echo -n "Enter your AWS_REGION:"
+    read aws_region
+    export AWS_REGION=$aws_region
+fi
+
 if [[ "$aws_architecture" == "" ]]; then
     echo -n "Enter your AWS ARCHITECTURE:"
     read aws_architecture
