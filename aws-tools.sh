@@ -48,22 +48,22 @@ sudo mkdir $prefix
 sudo rm -rf $prefix/*
 rm -f ec2-ami-tools.zip ec2-api-tools.zip
 
-wget http://s3.amazonaws.com/ec2-downloads/ec2-api-tools.zip 
+wget http://s3.amazonaws.com/ec2-downloads/ec2-api-tools.zip
 wget http://s3.amazonaws.com/ec2-downloads/ec2-ami-tools.zip
 sudo unzip -q ec2-api-tools.zip -d /usr/local/ec2/
 sudo unzip -q ec2-ami-tools.zip  -d /usr/local/ec2/
 
-###################################### 
-# get java install path 
+######################################
+# get java install path
 echo "*** SETTING JAVA PATH"
-java_bin=$(which java) 
-java_path=$(readlink -f $java_bin) 
-echo $java_bin  $java_path 
-java_home=${java_path/'/bin/java'/''} 
-### set java home path 
-export JAVA_HOME=$java_home 
-echo "*** JAVA_HOME set to  \"$java_home\""  
-$JAVA_HOME/bin/java -version 
+java_bin=$(which java)
+java_path=$(readlink -f $java_bin)
+echo $java_bin  $java_path
+java_home=${java_path/'/bin/java'/''}
+### set java home path
+export JAVA_HOME=$java_home
+echo "*** JAVA_HOME set to  \"$java_home\"" 
+$JAVA_HOME/bin/java -version
 
 ######################################
 ### set ec2-home variable
@@ -78,22 +78,22 @@ export PATH=$PATH:$EC2_AMITOOL_HOME/bin:$EC2_HOME/bin
 sudo -E $EC2_HOME/bin/ec2-version
 sudo -E $EC2_AMITOOL_HOME/bin/ec2-ami-tools-version
 
-echo "*** EC2_HOME set to  \"$api_tool\""  
-echo "*** EC2_AMITOOL_HOME set to  \"$ami_tool\""  
-echo 
+echo "*** EC2_HOME set to  \"$api_tool\""
+echo "*** EC2_AMITOOL_HOME set to  \"$ami_tool\""
+echo
 
 ######################################
-### set the aws-access/secret-key/account-id 
+### set the aws-access/secret-key/account-id
 
 if [[ "$aws_access_key" == "" ]]
-then 
+then
   echo -n "Enter your AWS_ACCESS_KEY:"
   read aws_access_key
   export AWS_ACCESS_KEY=$aws_access_key
 fi
- 
+
 if [[ "$aws_secret_key" == "" ]]
-then 
+then
   echo -n "Enter your AWS_SECRET_KEY:"
   read aws_secret_key
   export AWS_SECRET_KEY=$aws_secret_key
@@ -107,8 +107,8 @@ then
 fi
 
 if [[ "$aws_architecture" == "" ]]; then
-    echo -n "Please give the AWS region:"
-    read aws_region
+    echo -n "Enter your AWS ARCHITECTURE:"
+    read aws_architecture
     export AWS_ARCHITECTURE=$aws_architecture
 fi
 
