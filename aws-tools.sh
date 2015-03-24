@@ -144,8 +144,8 @@ then
   export AWS_PK_PATH=$awsPkPath
 fi
 
-echo "*** Using x509-cert.pem \"$awsCertPath\""
-echo "*** Using x509-pk.pem \"$awsPkPath\""
+echo "*** Using x509-cert.pem \"$AWS_CERT_PATH\""
+echo "*** Using x509-pk.pem \"$AWS_PK_PATH\""
 echo 
 echo "***  DONE WHITH $0"
 
