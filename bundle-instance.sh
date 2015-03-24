@@ -29,7 +29,12 @@ aws_access_key=$AWS_ACCESS_KEY
 aws_secret_key=$AWS_SECRET_KEY
 
 # region
-aws_region=us-west-2
+aws_region=$AWS_REGION
+if [[ "$aws_region" == "" ]]; then
+  echo " ERROR: No AWS_REGION given!! "
+  exit 20
+fi
+echo "Using region: $aws_region"
 
 # descriptions
 aws_ami_description="Intermediate AMI snapshot, to be deleted after completion"
@@ -118,7 +123,7 @@ fi
 
 #######################################
 ### what virtualisation type are we?
-### we check curl -s http://169.254.169.254/latest/meta-data/profile/ 
+### we check curl -s http://169.254.169.254/latest/meta-data/profile/
 ### returning [default-paravirtual|default-hvm]
 meta_data_profile=$(curl -s http://169.254.169.254/latest/meta-data/profile/ | grep "default-")
 profile=${meta_data_profile##default-}
@@ -126,13 +131,15 @@ echo "Guessing virtualisation type:$profile"
 ## on paravirtual AMI every thing is fine here
 partition=""
 virtual_type=""
-## on hvm AMI we might(???) set partition mbr and virtualisation-type hvm 
+## on hvm AMI we might(???) set partition mbr and virtualisation-type hvm
 echo "Do you want to register with virtualisation parameter? [y|N]"
 read parameter
 s3_bucket=$s3_bucket"paravirtual/"
 if [[ "$parameter" == "y" ]]; then
   virtual_type="--virtualization-type $profile "
   if  [[ "$profile" == "hvm" ]]; then
+###TODO: select the proper PVGRUB kernel for hvm
+    $kernel=" --kernel aki-fc8f11cc" #x86_64 PVGRUB for regions us-west-2 
     s3_bucket=$s3_bucket"hvm/"
     partition="  --partition mbr "
   fi
@@ -144,7 +151,7 @@ echo "Do you want to bundle with parameter \"--block-device-mapping \"? [y|N]:"
 blockDevice=""
 read blockDevice
 if  [[ "$blockDevice" == "y" ]]; then
-  echo "Root device is set to \"$root_device\". Select root device [xvda|sda] in device mapping:[x|S]" 
+  echo "Root device is set to \"$root_device\". Select root device [xvda|sda] in device mapping:[x|S]"
   read blockDevice
   if  [[ "$blockDevice" == "x" ]]; then
     blockDevice="  --block-device-mapping ami=xvda,root=/dev/xvda1 "
@@ -173,7 +180,7 @@ sudo -E $EC2_AMITOOL_HOME/bin/ec2-bundle-vol -k $AWS_PK_PATH -c $AWS_CERT_PATH -
 echo "*** Uploading AMI bundle to $s3_bucket "
 ec2-upload-bundle -b $s3_bucket -m $bundle_dir/$prefix$date_fmt.manifest.xml -a $AWS_ACCESS_KEY -s $AWS_SECRET_KEY --region $aws_region
 echo "*** Registering images"
-ec2-register   $s3_bucket/$prefix$date_fmt.manifest.xml -v $virtual_type -n "$aws_ami_name" -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY --region $aws_region
+ec2-register   $s3_bucket/$prefix$date_fmt.manifest.xml -v $virtual_type -n "$aws_ami_name" -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY --region $aws_region --architecture $aws_architecture $kernel
 echo "*** "
 echo "*** PARAMETER USED:"
 echo "*** Root device:$root_device"
