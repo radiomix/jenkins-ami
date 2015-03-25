@@ -73,7 +73,7 @@ if [[ ! -d $bundle_dir ]]; then
 fi
 
 # AWS S3 Bucket 
-s3_bucket="im7-ami/images/copied/"
+s3_bucket="im7-ami/images/copied"
 
 # x509 cert/pk file
 if [[ "$AWS_PK_PATH" == "" ]]; then
