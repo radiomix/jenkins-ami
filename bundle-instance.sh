@@ -58,7 +58,7 @@ kernel="" #gets set within HVM profile
 # descriptions
 aws_ami_description="Intermediate AMI snapshot, for backup-reasons"
 date_fmt=$(date '+%F-%H-%M')
-tring=$(grep ID /etc/lsb-release)
+string=$(grep ID /etc/lsb-release)
 id=${string##*=}
 echo $id
 string=$(grep RELEASE /etc/lsb-release)
