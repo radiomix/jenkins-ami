@@ -4,7 +4,7 @@
 #   http://docs.aws.amazon.com/AWSEC2/latest/CommandLineReference/set-up-ami-tools.html
 # Prerequests:
 #   - we need installed:
-#		ruby, default-jre (openjdk-6/7-jre), unzip, wget
+#		ruby, default-jre (openjdk-6/7-jre), unzip, wget, openssl
 #   - we need to export our $AWS_ACCESS_KEY and $AWS_SECRET_KEY as enironment variables like:
 #       export AWS_ACCESS_KEY=your_access_key_id
 #       export AWS_SECRET_KEY=your_secret_access_key
@@ -32,9 +32,9 @@ aws_architecture=$AWS_ARCHITECTURE
 
 ######################################
 ## packages needed anyways
-echo "*** Installing packages 'ruby default-jre unzip wget'"
+echo "*** Installing packages 'ruby default-jre unzip wget openssl'"
 sudo apt-get -q update
-sudo apt-get -q install -y --force-yes ruby default-jre unzip wget
+sudo apt-get -q install -y --force-yes ruby default-jre unzip wget openssl
 ## we experienced curl SSL errors as in
 ## http://tiku.io/questions/3051603/amazon-ec2-s3-self-signed-certificate-ssl-failure-when-using-ec2-upload-bundle
 ## so we reload the root certificates
