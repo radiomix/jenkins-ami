@@ -100,7 +100,8 @@ sudo apt-get install -y gdisk kpartx
 #######################################
 ## find root device to check grub version
 echo "*** Checking for grub version"
-lsblk
+mount | grep sda
+lsblk  #not on all distros available
 ### read the root device
 echo -n "Enter the root device: /dev/"
 read _device
