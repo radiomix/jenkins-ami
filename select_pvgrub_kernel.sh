@@ -8,23 +8,6 @@
 # we expect the AWS_REGION and AWS_ARCHITECTURE to be exported as environment variable 
 #
 
-
-# region
-aws_region=$AWS_REGION
-if [[ "$aws_region" == "" ]]; then
-   echo " ERROR: No AWS_REGION given!! "
-   return -2
-fi
-echo "Using region: $AWS_REGION"
-
-# architecture
-aws_architecture=$AWS_ARCHITECTURE
-if [[ "$aws_architecture" == "" ]]; then
-    echo " ERROR: No AWS_ARCHITECTURE given!! "
-    return -3
-fi
-echo "Using architecture: $AWS_ARCHITECTURE"
-
 #############################
 ##
 ## For each reagion ther are two kernels
@@ -33,17 +16,6 @@ echo "Using architecture: $AWS_ARCHITECTURE"
 #############################
 ## kernel list as of March 2015  
 ## http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/UserProvidedKernels.html#configuringGRUB
-aws_kernel=""
-declare -A kernels
-if [[ "$AWS_ARCHITECTURE" == "x86_64" ]]; then
-  setup_x86_64
-else
-  setup_i386
-fi
-aws_kernel=${kernels[$AWS_REGION]}
-export AWS_KERNEL=$aws_kernel
-echo "Using kernel:$AWS_KERNEL in region:$AWS_REGION for architecture:$AWS_ARCHITECTURE"
-
 setup_x86_64() {
   kernels[ap-northeast-1]=aki-176bf516
   kernels[ap-southeast-1]=aki-503e7402
@@ -69,3 +41,31 @@ setup_i386() {
   kernels[us-west-1]=aki-8e0531cb
   kernels[us-west-2]=aki-f08f11c0
 }
+
+# region
+aws_region=$AWS_REGION
+if [[ "$aws_region" == "" ]]; then
+   echo " ERROR: No AWS_REGION given!! "
+   return -2
+fi
+echo "Using region: $AWS_REGION"
+
+# architecture
+aws_architecture=$AWS_ARCHITECTURE
+if [[ "$aws_architecture" == "" ]]; then
+    echo " ERROR: No AWS_ARCHITECTURE given!! "
+    return -3
+fi
+echo "Using architecture: $AWS_ARCHITECTURE"
+
+aws_kernel=""
+declare -A kernels
+if [[ "$AWS_ARCHITECTURE" == "x86_64" ]]; then
+  setup_x86_64
+else
+  setup_i386
+fi
+aws_kernel=${kernels[$AWS_REGION]}
+export AWS_KERNEL=$aws_kernel
+echo "Using kernel:$AWS_KERNEL in region:$AWS_REGION for architecture:$AWS_ARCHITECTURE"
+
