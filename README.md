@@ -117,3 +117,13 @@ docker run -p 8080:8080 jenkins:
 |AMI creation/bundling  | single command/call  | installation of AMI tools  |
 |**stopped state**  | **root volume persists while instance is stopped** |  **cannot be stopped, instance runs or terminates (data loss)**  |
 
+#### AMIs
+The following AMIs have been successfully bundled and registered:
+- ami-75755545 Ubuntu 12.04, amd64, instance-store, aki-fc8f11cc
+- ami-a7785897 Ubuntu 12.04, amd64, hvm;instance-store, hvm
+- ami-a7785897 Ubuntu 10.04, amd64, hvm;instance-store hvm
+- ami-75c09945 Ubuntu 10.04, amd64, instance-store, aki-fc8f11cc
+
+#### Issues 
+ - If `ec2-bundle-vol` throws error `ec2/amitools/crypto.rb:13:in 'require': no such file to load -- openssl (LoadError)`, install package 'ruby-full'.
+ - On Ubuntu EOL(10.10, . . .), required packages can not be installed.
