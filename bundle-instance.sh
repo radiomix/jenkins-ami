@@ -58,8 +58,12 @@ kernel="" #gets set within HVM profile
 # descriptions
 aws_ami_description="Intermediate AMI snapshot, for backup-reasons"
 date_fmt=$(date '+%F-%H-%M')
-id=$(grep ID /etc/lsb-release)
-release=$(grep RELEASE /etc/lsb-release)
+tring=$(grep ID /etc/lsb-release)
+id=${string##*=}
+echo $id
+string=$(grep RELEASE /etc/lsb-release)
+release=${string##*=}
+echo $release
 aws_ami_name="$id-$release-bundle-instance-$date_fmt"
 
 # bundle directory, should be on a partition with lots of space
