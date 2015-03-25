@@ -58,7 +58,9 @@ kernel="" #gets set within HVM profile
 # descriptions
 aws_ami_description="Intermediate AMI snapshot, for backup-reasons"
 date_fmt=$(date '+%F-%H-%M')
-aws_ami_name="Ubuntu-LTS-12.04-bundle-instance-$date_fmt"
+id=$(grep ID /etc/lsb-release)
+release=$(grep RELEASE /etc/lsb-release)
+aws_ami_name="$id-$release-bundle-instance-$date_fmt"
 
 # bundle directory, should be on a partition with lots of space
 bundle_dir="/mnt/image/"
@@ -110,21 +112,20 @@ sudo file -s $root_device | grep "part /$"
 #######################################
 ## check grub version, we need grub legacy
 sudo grub-install --version
-echo  "to be shure, we install grub verions 0.9x"
+echo  "*** Installing grub verions 0.9x"
 sudo apt-get install -y grub
 grub_version=$(grub --version)
-echo "We got grub version:$grub_version."
+echo "*** Grub version:$grub_version."
 
 #######################################
 ### show boot cmdline parameter and adjust /boot/grub/menu.lst
 echo "*** Checking for boot parameters"
-echo "Next line holds boot command line parameters:"
+echo "*** Next line holds boot command line parameters:"
 cat /proc/cmdline
-echo
-echo "Next line holds kernel parameters in /boot/grub/menu.lst:"
+echo "*** Next line holds kernel parameters in /boot/grub/menu.lst:"
 grep ^kernel /boot/grub/menu.lst
 echo
-echo  "Do you want to adjust kernel parameter in /boot/grub/menu.list "
+echo  "Do you want to edit kernel parameter in /boot/grub/menu.list "
 echo -n "to reflect command line? [y|N]:"
 read edit
 if  [[ "$edit" == "y" ]]; then
@@ -151,7 +152,7 @@ s3_bucket=$s3_bucket"/"$profile
 virtual_type="--virtualization-type "$profile" "
 aws_ami_name=$aws_ami_name"-"$profile
 
-echo "*** Guessing virtualization type:$profile"
+echo "*** Checking virtualization parameter for type:$profile"
 ## on paravirtual AMI every thing is fine here
 partition=""
 ## for hvm AMI we set partition mbr
@@ -184,11 +185,11 @@ else
     blockDevice=""
 fi
 
-echo "Using partition:     $partition"
-echo "Using virtual_type:  $virtual_type"
-echo "Using block_device:  $blockDevice"
-echo "Using s3_bucket:     $s3_bucket"
-echo "Using kernel:        $kernel"
+echo "*** Using partition:     $partition"
+echo "*** Using virtual_type:  $virtual_type"
+echo "*** Using block_device:  $blockDevice"
+echo "*** Using s3_bucket:     $s3_bucket"
+echo "*** Using kernel:        $kernel"
 sleep 5
 
 #######################################
