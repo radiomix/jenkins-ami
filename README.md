@@ -38,7 +38,7 @@ Prerequisites
 `aws-stools.sh` reads and exports some environment variables:
 
 #### AWS
-AWS credentials
+AWS: credentials, region, architecture 
  + `AWS_ACCESS_KEY="MY-ACCESS-KEY"`
  + `AWS_SECRET_KEY="My-Secret-Key"`
  + `AWS_ACCOUNT_ID="My-Account-Id"`
