@@ -58,14 +58,14 @@ Java binaries
 ### Usage
 We recommend the following parameter during a `bundle_instance.sh` run:
 
-** virtualization type `paravirtual` **
- * _Is virtualization type:hvm correct?_ ** YES **
- * _`--block-device-mapping`_ ** NO **
+**virtualization type `paravirtual`**
+ * _Is virtualization type:hvm correct?_ **YES**
+ * _`--block-device-mapping`_ **NO**
 
-** virtualization type `hvm` **
- * _Is virtualization type:hvm correct?_ ** YES **
- * _`--block-device-mapping`_  ** YES **
- * _Select root device [xvda|sda] in device mapping_ ** SDA **
+**virtualization type `hvm`**
+ * _Is virtualization type:hvm correct?_ **YES**
+ * _`--block-device-mapping`_  **YES**
+ * _Select root device [xvda|sda] in device mapping_ **SDA**
 
 ## Packer Files
 The approach is slightly adapted from [Building Ubuntu 12.04 and 14.04 HVM Instance Store AMIs](https://github.com/Lumida/packer/wiki/Building-Ubuntu-12.04-and-14.04-HVM-Instance-Store-AMIs).
