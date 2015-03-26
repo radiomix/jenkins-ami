@@ -56,10 +56,10 @@ Java binaries
  + `JAVA_HOME=$java_home`
 
 ### Usage
-Run the two shell scripts in this orde:
+Run the two shell scripts with a period in this orde:
 ```
-. aws-tools.sh
-. bundle_intance.sh
+$ . aws-tools.sh
+$ . bundle_intance.sh
 ```
 We recommend the following parameter during a `bundle_instance.sh` run:
 
