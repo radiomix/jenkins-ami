@@ -24,7 +24,7 @@ $:>. this-script.sh
 ```
 
 ### Files
- + [`aws-tools.sh`](aws-tools.sh) Installs `ec2-api-tools` and `ec2-ami-tools` and neccessary packages (`ruby`, `openjdk-7-jre`) and exports AWS credentials.
+ + [`aws-tools.sh`](aws-tools.sh) Installs `ec2-api-tools` and `ec2-ami-tools` and neccessary packages (`ruby`, `default-jre`) and exports AWS credentials.
  + [`bundle_instance.sh`](bundle_instance.sh)
   - installs packages `gdisk`,`kpartx` and `grub` (legacy)
   - checks for command line kernel parameters and its counterpart in `/boot/grub/menu.lst` and edit them
@@ -87,7 +87,7 @@ We install these tools:
  + debconf-utils, emacs
  + python, golang
  + packer, chef
- + open-jdk-7u75-2.5.4-2 
+ + default-jre (jdk 6 or 7)
 
 ## The Instance stored AMI
 
