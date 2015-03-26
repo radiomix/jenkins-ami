@@ -75,6 +75,12 @@ We recommend the following parameter during a `bundle_instance.sh` run:
  * _`--block-device-mapping`_  **YES**
  * _Select root device [xvda|sda] in device mapping_ **SDA**
 
+#### AMIs
+The following AMIs have been successfully bundled and registered:
+- ami-75755545 Ubuntu 12.04, amd64, instance-store, aki-fc8f11cc
+- ami-a7785897 Ubuntu 12.04, amd64, hvm;instance-store, hvm
+- ami-75c09945 Ubuntu 10.04, amd64, instance-store, aki-fc8f11cc
+
 ## Packer Files
 The approach is slightly adapted from [Building Ubuntu 12.04 and 14.04 HVM Instance Store AMIs](https://github.com/Lumida/packer/wiki/Building-Ubuntu-12.04-and-14.04-HVM-Instance-Store-AMIs).
  + [`instance-12.04.json`](instance-12.04.json)  Backes AWS tools needed by the Instance stored AMI to be registerd as an Ubuntu 12.04 AMI.
@@ -103,14 +109,11 @@ The Instance stored AMI
 ### Installing Jenkins on an Instance stored AMI
 Packer file [`jenkins-12.04.json`](jenkins-12.04.json) backes an Instance stored AMI, as a playground to convert it into an EBS stored AMI.
 
-
 ### Running Jenkins as a Docker Container
 To pull the docker containers 'jenkins' and run it:
 ```
 docker run -p 8080:8080 jenkins:
 ```
-
-## Changing Jenkins Setup
 
 ## EBS vs Instance store
 | Characteristics | EBS stored | Instance store stored |
@@ -121,13 +124,6 @@ docker run -p 8080:8080 jenkins:
 |charges  | per instance usage, EBS and snapshot storage | per usage and S3 storage   |
 |AMI creation/bundling  | single command/call  | installation of AMI tools  |
 |**stopped state**  | **root volume persists while instance is stopped** |  **cannot be stopped, instance runs or terminates (data loss)**  |
-
-#### AMIs
-The following AMIs have been successfully bundled and registered:
-- ami-75755545 Ubuntu 12.04, amd64, instance-store, aki-fc8f11cc
-- ami-a7785897 Ubuntu 12.04, amd64, hvm;instance-store, hvm
-- ami-a7785897 Ubuntu 10.04, amd64, hvm;instance-store hvm
-- ami-75c09945 Ubuntu 10.04, amd64, instance-store, aki-fc8f11cc
 
 #### Issues 
  - If `ec2-bundle-vol` throws error `ec2/amitools/crypto.rb:13:in 'require': no such file to load -- openssl (LoadError)`, install package 'ruby-full'.
