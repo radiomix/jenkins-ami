@@ -4,7 +4,7 @@
 # Kernels: http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/UserProvidedKernels.html#configuringGRUB
 #
 
-# PREREQUEST
+# Prerequisite:
 # we expect the AWS_REGION and AWS_ARCHITECTURE to be exported as environment variable 
 #
 

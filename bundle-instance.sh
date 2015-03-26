@@ -2,7 +2,7 @@
 # Bundle Instance backed AMI, which was configured, to be registered as a new AMI
 #  http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/creating-an-ami-instance-store.htm
 #
-# Prerequests:
+# Prerequisite:
 #    THE FOLLOWING IS USUMED:
 #   - X509-cert-key-file.pem on the machine assuming under: /tmp/cert/, file path will be exported as AWS_CERT_PATH
 #   - X509-pk-key-file.pem on the machine assuming under: /tmp/cert/, file path will be exported as AWS_PK_PATH
@@ -44,16 +44,6 @@ if [[ "$aws_architecture" == "" ]]; then
 fi
 echo "Using region: $aws_region"
 
-#kernel=" --kernel aki-fc8f11cc" #x86_64 PVGRUB for regions us-west-2
-# kernel
-source select_pvgrub_kernel.sh
-aws_kernel=$AWS_KERNEL
-if [[ "$aws_kernel" == "" ]]; then
-  echo " ERROR: No AWS_KERNEL given!! "
-  return -4
-fi
-echo "Using kernel: $AWS_KERNEL"
-kernel="" #gets set within HVM profile
 
 # descriptions
 aws_ami_description="Intermediate AMI snapshot, for backup-reasons"
@@ -165,7 +155,6 @@ echo "Is virtualization type:$profile correct? [y|N]"
 read parameter
 if [[ "$parameter" == "y" ]]; then
   if  [[ "$profile" == "hvm" ]]; then
-    #kernel=" --kernel "$AWS_KERNEL" " ###TODO: kernel not allowed with HVM AMIs
     partition="  --partition mbr "
   fi
 fi
@@ -194,7 +183,6 @@ echo "*** Using partition:     $partition"
 echo "*** Using virtual_type:  $virtual_type"
 echo "*** Using block_device:  $blockDevice"
 echo "*** Using s3_bucket:     $s3_bucket"
-echo "*** Using kernel:        $kernel"
 sleep 5
 
 #######################################
@@ -207,7 +195,7 @@ sudo -E $EC2_AMITOOL_HOME/bin/ec2-bundle-vol -k $AWS_PK_PATH -c $AWS_CERT_PATH -
 echo "*** Uploading AMI bundle to $s3_bucket "
 ec2-upload-bundle -b $s3_bucket -m $bundle_dir/$prefix$date_fmt.manifest.xml -a $AWS_ACCESS_KEY -s $AWS_SECRET_KEY --region $aws_region
 echo "*** Registering images"
-ec2-register   $s3_bucket/$prefix$date_fmt.manifest.xml $virtual_type -n "$aws_ami_name" -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY --region $aws_region --architecture $aws_architecture $kernel
+ec2-register   $s3_bucket/$prefix$date_fmt.manifest.xml $virtual_type -n "$aws_ami_name" -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY --region $aws_region --architecture $aws_architecture 
 set +x
 echo "*** "
 echo "*** PARAMETER USED:"
@@ -220,7 +208,6 @@ echo "*** Virtualization:"$virtual_type
 echo "*** S3 Bucket:"$s3_bucket
 echo "*** Region:"$aws_region
 echo "*** AMI name:"$aws_ami_name
-echo "*** Kernel:"$kernel
 echo "*** "
 echo "*** FINISHED BUNDLING THE AMI"
 

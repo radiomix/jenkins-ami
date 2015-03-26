@@ -2,7 +2,7 @@
 # Prepare an AMI with the AWS API/AMI tools
 #   http://docs.aws.amazon.com/AWSEC2/latest/CommandLineReference/set-up-ec2-cli-linux.html
 #   http://docs.aws.amazon.com/AWSEC2/latest/CommandLineReference/set-up-ami-tools.html
-# Prerequests:
+#  Prerequisites:
 #   - we need installed:
 #		ruby, default-jre (openjdk-6/7-jre), unzip, wget, openssl
 #   - we need to export our $AWS_ACCESS_KEY and $AWS_SECRET_KEY as enironment variables like:

@@ -1,12 +1,10 @@
 # Goal
-We run Jenkins on an Instance stored AMI to convert it into an
+Converting a running Jenkins installation on an Instance stored AMI into an
 EBS-backed AMI.
-This [article](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ComponentsAMIs.html) explains the difference
-between an Instance stored and an EBS stored AMI. 
 
 + Install and play with Jenkins on an Instance store AMI
-+ Backup Jenkins effectively
-+ Convert the current Jenkins AMI from an Instance stored AMI into an EBS backed AMI
++ Backup the current Jenkins AMI as an Instance stored AMI or an EBS
+  backed AMI 
 + Replay the Jenkins backup to the EBS backed AMI
 
 
@@ -15,11 +13,11 @@ As source AMIs we use two Ubuntu LTS Server AMIs
  + [ubuntu-precise-12.04-amd64-server](http://thecloudmarket.com/image/ami-a7785897--ubuntu-images-hvm-instance-ubuntu-precise-12-04-amd64-server-20150227) an Ubuntu 12.04 LTS Server x86_64 AMI, instance store for region us-west-2 
  + [ubuntu-trusty-14.04-amd64-server](http://thecloudmarket.com/image/ami-29ebb519--ubuntu-images-hvm-ssd-ubuntu-trusty-14-04-amd64-server-20150123) a Ubuntu 14.04 LTS Server x86_64 AMI, instance store for region us-west-2 
 
-## Converting Instance stored into EBS stored AMI
+## Bundling the Instance stored into a new Instance stored AMI
 The [AWS docu]( http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/creating-an-ami-instance-store.htm) 
 describes how to create and copy an instance stored AMI. We split the
 task in two: First we install the AWS tools and check for AWS
-credentials. Then we prepare and bundle the AMI. As the scripts depend on
+credentials. Then we prepare and bundle the AMI. As these scripts depend on
 exported environment variables, they have to be called with a period: 
 ``` bash
 $:>. this-script.sh
@@ -34,10 +32,10 @@ $:>. this-script.sh
   - check the proper virtualization type with `curl -s http://169.254.169.254/latest/meta-data/profile/ | grep "default-"` returning [default-paravirtual|default-hvm] and set bundle parameters
   - bundles and uploads the image and registers an AMI
 
-## Prerequest
+## Prerequisites
 `aws-stools.sh` reads and exports some environment variables:
 
-### AWS
+#### AWS
 AWS credentials
  + `AWS_ACCESS_KEY="MY-ACCESS-KEY"`
  + `AWS_SECRET_KEY="My-Secret-Key"`
@@ -47,29 +45,27 @@ AWS credentials
  + `AWS_CERT_PATH="/path/to/my/x509-cert.pem"`
  + `AWS_PK_PATH="/path/to/my/x509-pk.pem"`
 
-### EC2
+#### EC2
 AWS tools
  + `EC2_AMITOOL_HOME=$ami_tool`
  + `EC2_HOME=$api_tool`
  + `PATH=$PATH:$EC2_AMITOOL_HOME/bin:$EC2_HOME/bin`
 
-### JAVA
+#### JAVA
 Java binaries
  + `JAVA_HOME=$java_home`
 
 ### Usage
-`bundle_instance.sh` asks several questions. These are parameters:
+We recommend the following parameter during a `bundle_instance.sh` run:
 
-#### Paravirtual
-virtualization type `paravirtual`
- * Is virtualization type:hvm correct? YES
- * --block-device-mapping NO
+**  virtualization type `paravirtual` **
+ * _Is virtualization type:hvm correct?_ ** YES **
+ * _`--block-device-mapping`_ ** NO **
 
-#### HVM
-virtualization type `hvm`
- * Is virtualization type:hvm correct? YES
- * --block-device-mapping YES
- * Select root device [xvda|sda] in device mapping: SDA
+**  virtualization type `hvm` **
+ * _Is virtualization type:hvm correct?_ ** YES **
+ * _`--block-device-mapping`_  ** YES **
+ * _Select root device [xvda|sda] in device mapping_ ** SDA **
 
 ## Packer Files
 The approach is slightly adapted from [Building Ubuntu 12.04 and 14.04 HVM Instance Store AMIs](https://github.com/Lumida/packer/wiki/Building-Ubuntu-12.04-and-14.04-HVM-Instance-Store-AMIs).
