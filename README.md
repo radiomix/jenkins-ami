@@ -1,4 +1,5 @@
-# Goal
+Goal
+----
 Converting a running Jenkins installation on an Instance stored AMI into an
 EBS-backed AMI.
 
@@ -32,7 +33,8 @@ $:>. this-script.sh
   - check the proper virtualization type with `curl -s http://169.254.169.254/latest/meta-data/profile/ | grep "default-"` returning [default-paravirtual|default-hvm] and set bundle parameters
   - bundles and uploads the image and registers an AMI
 
-## Prerequisites
+Prerequisites
+-------------
 `aws-stools.sh` reads and exports some environment variables:
 
 #### AWS
@@ -55,7 +57,8 @@ AWS tools
 Java binaries
  + `JAVA_HOME=$java_home`
 
-### Usage
+Usage
+----
 Run the two shell scripts with a period in this orde:
 ```
 $ . aws-tools.sh
@@ -94,7 +97,8 @@ We install these tools:
  + packer, chef
  + default-jre (jdk 6 or 7)
 
-## The Instance stored AMI
+The Instance stored AMI
+-----------------------
 
 ### Installing Jenkins on an Instance stored AMI
 Packer file [`jenkins-12.04.json`](jenkins-12.04.json) backes an Instance stored AMI, as a playground to convert it into an EBS stored AMI.
