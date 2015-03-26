@@ -38,7 +38,6 @@ Prerequisites
 `aws-stools.sh` reads and exports some environment variables:
 
 #### AWS
-AWS: credentials, region, architecture 
  + `AWS_ACCESS_KEY="MY-ACCESS-KEY"`
  + `AWS_SECRET_KEY="My-Secret-Key"`
  + `AWS_ACCOUNT_ID="My-Account-Id"`
@@ -48,13 +47,11 @@ AWS: credentials, region, architecture
  + `AWS_PK_PATH="/path/to/my/x509-pk.pem"`
 
 #### EC2
-AWS tools
  + `EC2_AMITOOL_HOME=$ami_tool`
  + `EC2_HOME=$api_tool`
  + `PATH=$PATH:$EC2_AMITOOL_HOME/bin:$EC2_HOME/bin`
 
 #### JAVA
-Java binaries
  + `JAVA_HOME=$java_home`
 
 Usage
