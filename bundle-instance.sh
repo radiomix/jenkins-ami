@@ -194,6 +194,7 @@ sudo -E $EC2_AMITOOL_HOME/bin/ec2-bundle-vol -k $AWS_PK_PATH -c $AWS_CERT_PATH -
 ##TODO adjust ami name to ec2-bundle-vol command
 echo "*** Uploading AMI bundle to $s3_bucket "
 ec2-upload-bundle -b $s3_bucket -m $bundle_dir/$prefix$date_fmt.manifest.xml -a $AWS_ACCESS_KEY -s $AWS_SECRET_KEY --region $aws_region
+## only ec2-register needs jre installed!
 echo "*** Registering images"
 ec2-register   $s3_bucket/$prefix$date_fmt.manifest.xml $virtual_type -n "$aws_ami_name" -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY --region $aws_region --architecture $aws_architecture 
 set +x

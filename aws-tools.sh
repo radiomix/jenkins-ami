@@ -5,6 +5,8 @@
 #  Prerequisites:
 #   - we need installed:
 #		ruby, default-jre (openjdk-6/7-jre), unzip, wget, openssl
+#       jre is only needed for command ec2-register (CLI Tools need JAVA)
+#       http://docs.aws.amazon.com/AWSEC2/latest/CommandLineReference/set-up-ec2-cli-linux.html
 #   - we need to export our $AWS_ACCESS_KEY and $AWS_SECRET_KEY as enironment variables like:
 #       export AWS_ACCESS_KEY=your_access_key_id
 #       export AWS_SECRET_KEY=your_secret_access_key
@@ -32,6 +34,7 @@ aws_architecture=$AWS_ARCHITECTURE
 
 ######################################
 ## packages needed anyways
+## ec2-register needs jre!!
 echo "*** Installing packages 'ruby default-jre unzip wget openssl'"
 sudo apt-get -q update
 sudo apt-get -q install -y --force-yes ruby default-jre unzip wget openssl

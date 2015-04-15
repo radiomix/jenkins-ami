@@ -52,6 +52,8 @@ Prerequisites
  + `PATH=$PATH:$EC2_AMITOOL_HOME/bin:$EC2_HOME/bin`
 
 #### JAVA
+`ec2-register` is a EC2 CLI Tool written in Java and thus needs Java
+installed.
  + `JAVA_HOME=$java_home`
 
 Usage
