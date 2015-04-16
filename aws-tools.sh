@@ -4,8 +4,8 @@
 #   http://docs.aws.amazon.com/AWSEC2/latest/CommandLineReference/set-up-ami-tools.html
 #  Prerequisites:
 #   - we need installed:
-#		ruby, default-jre (openjdk-6/7-jre), unzip, wget, openssl
-#       jre is only needed for command ec2-register (CLI Tools need JAVA)
+#		ruby, unzip, wget, openssl
+#       jre is for command ec2-register (CLI Tools need JAVA), thus we check for an installed version
 #       http://docs.aws.amazon.com/AWSEC2/latest/CommandLineReference/set-up-ec2-cli-linux.html
 #   - we need to export our $AWS_ACCESS_KEY and $AWS_SECRET_KEY as enironment variables like:
 #       export AWS_ACCESS_KEY=your_access_key_id
@@ -34,10 +34,9 @@ aws_architecture=$AWS_ARCHITECTURE
 
 ######################################
 ## packages needed anyways
-## ec2-register needs jre!!
-echo "*** Installing packages 'ruby default-jre unzip wget openssl'"
+echo "*** Installing packages 'ruby unzip wget openssl'"
 sudo apt-get -q update
-sudo apt-get -q install -y --force-yes ruby default-jre unzip wget openssl
+sudo apt-get -q install -y --force-yes ruby unzip wget openssl
 ## we experienced curl SSL errors as in
 ## http://tiku.io/questions/3051603/amazon-ec2-s3-self-signed-certificate-ssl-failure-when-using-ec2-upload-bundle
 ## so we reload the root certificates
@@ -59,7 +58,19 @@ sudo unzip -q ec2-ami-tools.zip  -d /usr/local/ec2/
 ######################################
 # get java install path
 echo "*** SETTING JAVA PATH"
-java_bin=$(which java)
+java_bin=$(which ava)
+if [[ "$java_bin" == "" ]]; then
+   echo -n " ERROR:  No Java version found! Should Java be installed? [y|N]"
+   read input
+   if [[ "$input" == "y" ]]; then
+   echo "*** Installing Java!"
+        sudo apt-get install -y --force-yes default-jre
+        java_bin=$(which java)
+    else 
+        echo "***  ERROR: No Java version found! EXIT!"
+        exit -11
+    fi
+fi
 java_path=$(readlink -f $java_bin)
 echo $java_bin  $java_path
 java_home=${java_path/'/bin/java'/''}
