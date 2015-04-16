@@ -58,7 +58,7 @@ sudo unzip -q ec2-ami-tools.zip  -d /usr/local/ec2/
 ######################################
 # get java install path
 echo "*** SETTING JAVA PATH"
-java_bin=$(which ava)
+java_bin=$(which java)
 if [[ "$java_bin" == "" ]]; then
    echo -n " ERROR:  No Java version found! Should Java be installed? [y|N]"
    read input
