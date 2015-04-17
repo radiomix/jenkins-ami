@@ -26,6 +26,10 @@ aws_account_id=$AWS_ACCOUNT_ID
 
 # region
 aws_region=$AWS_REGION
+if [[ "$aws_region" == "" ]]; then
+  aws_zone=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone)
+  aws_region=${aws_zone::-1}
+fi
 
 # architecture
 aws_architecture=$AWS_ARCHITECTURE
