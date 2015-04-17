@@ -17,79 +17,67 @@
 #######################################
 ## config variables
 
+# bundle directory
+bundle_dir="/tmp/bundle"
+
 # access key from env variable, needed for authentification
 aws_access_key=$AWS_ACCESS_KEY
 
 # secrete key from env variable, needed for authentification
 aws_secret_key=$AWS_SECRET_KEY
 
-# region
-aws_region=us-west-2
-
-# availability zone
-aws_availability_zone=us-west-2a
-
 # base AMI the instance was launched off, needed to get kernel, virtual. type etc
 aws_ami_id=ami-bdab868d
 
 # device and mountpoint of the new volume, we put our new AMI onto this device(aws_volume)
-aws_device=/dev/xvdc
+aws_device=/dev/xvdx
 aws_mount_point=/mnt/ebs
 
 # descriptions
 aws_snapshot_description="Intermediate AMI snapshot, to be deleted after completion"
 date=$(date)
 aws_ami_name="Ubuntu LTS 12.04 Jenkins-Server as of $date"
+
+
+# region
+aws_region=$AWS_REGION
+if [[ "$aws_region" == "" ]]; then
+  echo " ERROR: No AWS_REGION given!! "
+  return -2
+fi
+echo "Using region: $aws_region"
+
+# architecture
+aws_architecture=$AWS_ARCHITECTURE
+if [[ "$aws_architecture" == "" ]]; then
+  echo " ERROR: No AWS_ARCHITECTURE given!! "
+  return -3
+fi
+echo "Using region: $aws_region"
+
+# aws availability zone
+aws_avail_zone=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone/)
+
+## instance id
+aws_instance_id=$(curl -s http://169.254.169.254/latest/meta-data/instance-id/)
+
 ## config variables
 
-#######################################
-## Create an EBS volume bigger than the instance backed AMI
-##
-aws_volume_result=$(ec2-create-volume --size 10 --region $aws_region --availability-zone $aws_availability_zone)
-###FIXME  get the second argument as the $aws_volume_id
+######################################
+## creating ebs volume to be bundle root dev
+command=$(sudo -E $EC2_AMITOOL_HOME/bin/ec2-create-volume --size 10 --region $aws_region --availability-zone $aws_avail_zone)
+rest=${command/VOLUME/""}
+aws_volume_id=${rest:0:12}
 
+######################################
+## attache volume
+sudo -u $EC2_AMITOOL_HOME/bin/ec2-attache-volume $aws_volume_id -i $aws_instance_id --device /dev/xvdx --region $aws_region
 
-#######################################
-## Attach the volume: as of 03/2015 kernel mounts volumens /dev/xvd[a,b,c, . . .]
-##
-ec2-attach-volume $aws_volume_id -i $aws_instance_id --device $aws_device --region $aws_region
+mkdir $bundle_dir
 
-#######################################
-## Create a file system on the new volume and mount it
-##
-mkfs.ext3 $aws_device
-mkdir -p $aws_mount_point
-mount $aws_device $aws_mount_point
+####TODO we are at step 6 of docu!
+# download bundle, unbundle dd to attached volume,  . . . 
 
-#######################################
-## Shutdown all services (DB/APACHE/JENKINS ???)
-## and sync the new volume
-rsynx -avHx  --exclude $aws_mount_point  / $aws_mount_point
-## either sync the device 
-#rsync -avHx /dev $aws_mount_point
-## or remake them
-# MAKEDEV console 
-# MAKEDEV generic
-# MAKEDEV zero
-# MAKEDEV null
-
-#######################################
-#####  MAYBE NOT NEEDED???  
-echo "
-## replacint in /etc/fstab, /boot/grub/menu.lst and /boot/grub/grub.cfg 
-## under mount point $aws_mount_point 
-## \"LABEL=cloudimg-rootfs\" with \"/dev/xvda1"\ 
-##
-"
-### TODO should be cone with sed!!
-vi $aws_mount_point/etc/fstab
-vi $aws_mount_point/boot/grub/menu.lst
-vi $aws_mount_point/boot/grub/grub.cfg
-
-#######################################
-## unmount and detach the volume
-umount $aws_device
-ec2-detach-volume $aws_volume_id --region $aws_region
 
 #######################################
 ## create a snapshot and verify it
@@ -111,4 +99,54 @@ aws_registerd_ami_id=$(ec2-register --region $aws_region -n $aws_ami_name -s $aw
 
 #######################################
 ## and delete the volume
-ec2-delete-volume $aws_volume_id 
+## ec2-delete-volume $aws_volume_id 
+#######################################
+
+# AWS S3 Bucket 
+s3_bucket="im7-ami/images/copied"
+
+# x509 cert/pk file
+if [[ "$AWS_PK_PATH" == "" ]]; then
+  echo " ERROR: X509 private key file \"$AWS_PK_PATH\" not found!! "
+  return -21
+fi
+if [[ "$AWS_CERT_PATH" == "" ]]; then
+  echo " ERROR: X509 cert key file \"$AWS_CERT_PATH\" not found!! "
+  return -22
+fi
+
+mkdir /tmp/bundle
+
+
+
+####TODO
+#### check for proper S3 bucket name!
+
+
+#######################################
+### this is bundle-work
+sudo -E $EC2_HOME/bin/ec2-version
+echo "*** Bundleing AMI, this may take several minutes "
+set -x
+sudo -E $EC2_AMITOOL_HOME/bin/ec2-bundle-vol -k $AWS_PK_PATH -c $AWS_CERT_PATH -u $AWS_ACCOUNT_ID -r x86_64 -e /tmp/cert/ -d $bundle_dir -p $prefix$date_fmt  $blockDevice $partition --batch
+##TODO adjust ami name to ec2-bundle-vol command
+echo "*** Uploading AMI bundle to $s3_bucket "
+ec2-upload-bundle -b $s3_bucket -m $bundle_dir/$prefix$date_fmt.manifest.xml -a $AWS_ACCESS_KEY -s $AWS_SECRET_KEY --region $aws_region
+## only ec2-register needs jre installed!
+echo "*** Registering images"
+ec2-register   $s3_bucket/$prefix$date_fmt.manifest.xml $virtual_type -n "$aws_ami_name" -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY --region $aws_region --architecture $aws_architecture 
+set +x
+echo "*** "
+echo "*** PARAMETER USED:"
+echo "*** Root device:"$root_device
+echo "*** Grub version:"$(grub --version)
+echo "*** Bundle folder:"$bundle_dir
+echo "*** Block device mapping:"$blockDevice
+echo "*** Partition flag:"$partition
+echo "*** Virtualization:"$virtual_type
+echo "*** S3 Bucket:"$s3_bucket
+echo "*** Region:"$aws_region
+echo "*** AMI name:"$aws_ami_name
+echo "*** "
+echo "*** FINISHED BUNDLING THE AMI"
+
