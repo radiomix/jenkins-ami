@@ -143,7 +143,7 @@ fi
 meta_data_profile=$(curl -s http://169.254.169.254/latest/meta-data/profile/ | grep "default-")
 profile=${meta_data_profile##default-}
 ### remember virtual. type in s3-bucket name and parameter virtual. type
-s3_bucket=$s3_bucket"/"$profile
+## s3_bucket=$s3_bucket"/"$profile
 virtual_type="--virtualization-type "$profile" "
 aws_ami_name=$aws_ami_name"-"$profile
 
@@ -169,20 +169,29 @@ if  [[ "$blockDevice" == "y" ]]; then
   if  [[ "$blockDevice" == "x" ]]; then
     blockDevice="  --block-device-mapping ami=xvda,root=/dev/xvda1 "
     prefix=$prefix"xvda-"
-    s3_bucket=$s3_bucket"/xvda"
+    ## s3_bucket=$s3_bucket"/xvda"
   else
     blockDevice="  --block-device-mapping ami=sda,root=/dev/sda1 "
     prefix=$prefix"sda-"
-    s3_bucket=$s3_bucket"/sda"
+    ##s3_bucket=$s3_bucket"/sda"
   fi
 else
     blockDevice=""
 fi
 
+
+#######################################
 echo "*** Using partition:     $partition"
 echo "*** Using virtual_type:  $virtual_type"
 echo "*** Using block_device:  $blockDevice"
 echo "*** Using s3_bucket:     $s3_bucket"
+## write parameter to log file
+touch $date_fmt.log
+echo "*** Using partition:     $partition" >> $date_fmt.log
+echo "*** Using virtual_type:  $virtual_type"  >> $date_fmt.log
+echo "*** Using block_device:  $blockDevice"  >> $date_fmt.log
+echo "*** Using s3_bucket:     $s3_bucket"  >> $date_fmt.log
+
 sleep 5
 
 #######################################
@@ -207,8 +216,22 @@ echo "*** Block device mapping:"$blockDevice
 echo "*** Partition flag:"$partition
 echo "*** Virtualization:"$virtual_type
 echo "*** S3 Bucket:"$s3_bucket
+echo "*** Manifest:"$s3_bucket/$prefix$date_fmt.manifest.xml
 echo "*** Region:"$aws_region
 echo "*** AMI name:"$aws_ami_name
 echo "*** "
 echo "*** FINISHED BUNDLING THE AMI"
 
+## write parameter to log file
+echo "*** "  >> $date_fmt.log
+echo "*** PARAMETER USED:"  >> $date_fmt.log
+echo "*** Root device:"$root_device  >> $date_fmt.log
+echo "*** Grub version:"$(grub --version)  >> $date_fmt.log
+echo "*** Bundle folder:"$bundle_dir  >> $date_fmt.log
+echo "*** Block device mapping:"$blockDevice  >> $date_fmt.log
+echo "*** Partition flag:"$partition   >> $date_fmt.log
+echo "*** Virtualization:"$virtual_type  >> $date_fmt.log
+echo "*** S3 Bucket:"$s3_bucket  >> $date_fmt.log
+echo "*** Manifest:"$s3_bucket/$prefix$date_fmt.manifest.xml  >> $date_fmt.log
+echo "*** Region:"$aws_region  >> $date_fmt.log
+echo "*** AMI name:"$aws_ami_name  >> $date_fmt.log
