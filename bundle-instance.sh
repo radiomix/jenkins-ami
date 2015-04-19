@@ -85,7 +85,11 @@ prefix="bundle-instance-"
 # log file
 log_file=bundle-$date_fmt.log
 touch $log_file
-echo "*** Bundling AMI:"$(curl -s http://169.254.169.254/latest/meta-data/ami-id) >> $log_file
+
+# AMI id we are bundling (This one!)
+current_ami_id $(curl -s http://169.254.169.254/latest/meta-data/ami-id) 
+echo "*** Bundling AMI:"$current_ami_id 
+echo "*** Bundling AMI:"$current_ami_id >> $log_file
 
 ## config variables
 
@@ -211,7 +215,9 @@ ec2-upload-bundle -b $s3_bucket -m $bundle_dir/$prefix$date_fmt.manifest.xml -a 
 echo "*** Registering images"
 command=$(ec2-register   $s3_bucket/$prefix$date_fmt.manifest.xml $virtual_type -n "$aws_ami_name" -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY --region $aws_region --architecture $aws_architecture )
 echo $command
-aws_ami_id=${rest:6:13}
+aws_ami_id=${echo $command | cut -d ' ' -f 1}
+
+
 export AWS_AMI_ID=$aws_ami_id
 export AWS_S3_BUCKER=$s3_bucket
 export AWS_MANIFEST=$prefix$date_fmt.manifest.xml
@@ -229,12 +235,12 @@ echo "*** Manifest:"$s3_bucket/$prefix$date_fmt.manifest.xml
 echo "*** Region:"$aws_region
 echo "*** AMI name:"$aws_ami_name
 echo "*** AMI Id:"$aws_ami_id 
+echo "*** FINISHED Bundling AMI:"$current_ami_id 
 echo "*** "
-echo "*** FINISHED BUNDLING THE AMI"
 
 ## write parameter to log file
 
-echo "*** "  >> $log_fil
+echo "*** "  >> $log_file
 echo "*** PARAMETER USED:"  >> $log_file
 echo "*** Root device:"$root_device  >> $log_file
 echo "*** Grub version:"$(grub --version)  >> $log_file
@@ -247,3 +253,4 @@ echo "*** Manifest:"$s3_bucket/$prefix$date_fmt.manifest.xml  >> $log_file
 echo "*** Region:"$aws_region  >> $log_file
 echo "*** AMI name:"$aws_ami_name  >> $log_file
 echo "*** AMI Id:"$aws_ami_id >> $log_file
+echo "*** FINISHED Bundling AMI:"$current_ami_id >> $log_file
