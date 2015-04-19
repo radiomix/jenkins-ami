@@ -30,7 +30,7 @@ $:>. this-script.sh
  + [`aws-tools.sh`](aws-tools.sh) Installs `ec2-api-tools` and `ec2-ami-tools` and 
 packages `ruby`, `unzip`, `wget` and `openssl`, checks for Java installatation and 
 asks to install `default-jre`, exports env variables for AWS credentials.
- + [`bundle_instance.sh`](bundle_instance.sh)
+ + [`bundle-instance.sh`](bundle-instance.sh)
   - installs packages `gdisk`,`kpartx` and `grub` (legacy)
   - checks for command line kernel parameters and its counterpart in `/boot/grub/menu.lst` and edit them
   - checks for `efi` partitions in `/etc/fstab`
