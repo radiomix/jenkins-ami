@@ -201,7 +201,6 @@ echo "*** Using block_device:  $blockDevice"  >> $log_file
 echo "*** Using s3_bucket:     $s3_bucket"  >> $log_file
 sleep 5
 start=$SECONDS
-echo "*** Starting to bundle at:"$start >> $log_file
 
 #######################################
 ### this is bundle-work
