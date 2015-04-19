@@ -82,6 +82,11 @@ fi
 # image file prefix
 prefix="bundle-instance-"
 
+# log file
+log_file=bundle-$date_fmt.log
+touch $log_file
+echo "*** Bundling AMI:"$(curl -s http://169.254.169.254/latest/meta-data/ami-id) >> $log_file
+
 ## config variables
 
 ######################################
@@ -186,11 +191,10 @@ echo "*** Using virtual_type:  $virtual_type"
 echo "*** Using block_device:  $blockDevice"
 echo "*** Using s3_bucket:     $s3_bucket"
 ## write parameter to log file
-touch $date_fmt.log
-echo "*** Using partition:     $partition" >> $date_fmt.log
-echo "*** Using virtual_type:  $virtual_type"  >> $date_fmt.log
-echo "*** Using block_device:  $blockDevice"  >> $date_fmt.log
-echo "*** Using s3_bucket:     $s3_bucket"  >> $date_fmt.log
+echo "*** Using partition:     $partition" >> $log_file
+echo "*** Using virtual_type:  $virtual_type"  >> $log_file
+echo "*** Using block_device:  $blockDevice"  >> $log_file
+echo "*** Using s3_bucket:     $s3_bucket"  >> $log_file
 
 sleep 5
 
@@ -205,7 +209,12 @@ echo "*** Uploading AMI bundle to $s3_bucket "
 ec2-upload-bundle -b $s3_bucket -m $bundle_dir/$prefix$date_fmt.manifest.xml -a $AWS_ACCESS_KEY -s $AWS_SECRET_KEY --region $aws_region
 ## only ec2-register needs jre installed!
 echo "*** Registering images"
-ec2-register   $s3_bucket/$prefix$date_fmt.manifest.xml $virtual_type -n "$aws_ami_name" -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY --region $aws_region --architecture $aws_architecture 
+command=$(ec2-register   $s3_bucket/$prefix$date_fmt.manifest.xml $virtual_type -n "$aws_ami_name" -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY --region $aws_region --architecture $aws_architecture )
+echo $command
+aws_ami_id=${rest:6:13}
+export AWS_AMI_ID=$aws_ami_id
+export AWS_S3_BUCKER=$s3_bucket
+export AWS_MANIFEST=$prefix$date_fmt.manifest.xml
 set +x
 echo "*** "
 echo "*** PARAMETER USED:"
@@ -219,19 +228,22 @@ echo "*** S3 Bucket:"$s3_bucket
 echo "*** Manifest:"$s3_bucket/$prefix$date_fmt.manifest.xml
 echo "*** Region:"$aws_region
 echo "*** AMI name:"$aws_ami_name
+echo "*** AMI Id:"$aws_ami_id 
 echo "*** "
 echo "*** FINISHED BUNDLING THE AMI"
 
 ## write parameter to log file
-echo "*** "  >> $date_fmt.log
-echo "*** PARAMETER USED:"  >> $date_fmt.log
-echo "*** Root device:"$root_device  >> $date_fmt.log
-echo "*** Grub version:"$(grub --version)  >> $date_fmt.log
-echo "*** Bundle folder:"$bundle_dir  >> $date_fmt.log
-echo "*** Block device mapping:"$blockDevice  >> $date_fmt.log
-echo "*** Partition flag:"$partition   >> $date_fmt.log
-echo "*** Virtualization:"$virtual_type  >> $date_fmt.log
-echo "*** S3 Bucket:"$s3_bucket  >> $date_fmt.log
-echo "*** Manifest:"$s3_bucket/$prefix$date_fmt.manifest.xml  >> $date_fmt.log
-echo "*** Region:"$aws_region  >> $date_fmt.log
-echo "*** AMI name:"$aws_ami_name  >> $date_fmt.log
+
+echo "*** "  >> $log_fil
+echo "*** PARAMETER USED:"  >> $log_file
+echo "*** Root device:"$root_device  >> $log_file
+echo "*** Grub version:"$(grub --version)  >> $log_file
+echo "*** Bundle folder:"$bundle_dir  >> $log_file
+echo "*** Block device mapping:"$blockDevice  >> $log_file
+echo "*** Partition flag:"$partition   >> $log_file
+echo "*** Virtualization:"$virtual_type  >> $log_file
+echo "*** S3 Bucket:"$s3_bucket  >> $log_file
+echo "*** Manifest:"$s3_bucket/$prefix$date_fmt.manifest.xml  >> $log_file
+echo "*** Region:"$aws_region  >> $log_file
+echo "*** AMI name:"$aws_ami_name  >> $log_file
+echo "*** AMI Id:"$aws_ami_id >> $log_file
