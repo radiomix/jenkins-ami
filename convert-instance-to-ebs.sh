@@ -19,6 +19,14 @@
 
 # bundle directory
 bundle_dir="/tmp/bundle"
+if [[ ! -d $bundle_dir ]]; then
+  sudo mkdir $bundle_dir
+fi
+result=$(sudo test -w $bundle_dir && echo yes)
+if [[ $result == yes ]]; then
+  echo " ERROR: directory $bundle_dir to bundle the image is not writable!! "
+  return -11
+fi
 
 # access key from env variable, needed for authentification
 aws_access_key=$AWS_ACCESS_KEY
@@ -29,6 +37,14 @@ aws_secret_key=$AWS_SECRET_KEY
 # device and mountpoint of the new volume; we put our new AMI onto this device(aws_volume)
 aws_ebs_device=/dev/xvdx
 aws_ebs_mount_point=/mnt/ebs
+if [[ ! -d $aws_ebs_mount_point ]]; then
+  sudo mkdir $aws_ebs_mount_point
+fi
+result=$(sudo test -w $aws_ebs_mount_point && echo yes)
+if [[ $result == yes ]]; then
+  echo " ERROR: directory $aws_ebs_mount_point to mount the image is not writable!! "
+  return -12
+fi
 
 # descriptions
 aws_snapshot_description="Intermediate AMI snapshot, to be deleted after completion"
@@ -97,9 +113,7 @@ sudo -u $EC2_AMITOOL_HOME/bin/ec2-attache-volume $aws_volume_id -i $aws_instance
 
 ######################################
 ## download and unbundle instance store based AMI
-mkdir $bundle_dir
 $EC2_AMITOOL_HOME/bin/ec2-download-bundle -b  $s3_bucket -m $manifest  -a $AWS_ACCESS_KEY -s $AWS_SECRET_KEY --privatekey $AWS_PK_PATH -d $bundle_dir
-
 cd $bundle_dir
 $EC2_AMITOOL_HOME/bin/ec2-unbundle -m $manifest --privatekey $AWS_PK_PATH 
 
@@ -109,9 +123,8 @@ sudo dd if=$bundle_dir/image of=$aws_ebs_device bs=1M
 sudo partprobe $aws_ebs_device
 
 ######################################
-## list block devices, create a mount point, mount EBS volume
+## list block devices and mount EBS volume
 lsblk
-sudo mkdir $aws_ebs_mount_point
 sudo mount $aws_ebs_device $aws_ebs_mount_point
 
 ######################################
@@ -128,8 +141,8 @@ $EC2_AMITOOL_HOME/bin/ec2-detach-volume $aws_volume_id --region $aws_region
 
 #######################################
 ## create a snapshot and verify it
-command=$($EC2_AMITOOL_HOME/bin/ec2-create-snapshot --region $aws_region -d $aws_snapshot_description -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY $aws_volume_id)
-rest=${command/VOLUME/""}
+output=$($EC2_AMITOOL_HOME/bin/ec2-create-snapshot --region $aws_region -d $aws_snapshot_description -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY $aws_volume_id)
+rest=${output/VOLUME/""}
 aws_snapshot_id=${rest:0:13}
 echo "Created snapshot:$aws_snapshot_id"
 
@@ -149,7 +162,7 @@ done
 ## without a description 
 #command=$($EC2_AMITOOL_HOME/bin/ec2-describe-images --region $aws_region $aws_ami_id)
 ## but we can select a proper kernel for our region.
-source select_pvgrub_kernel.s
+source select_pvgrub_kernel.sh
 
 #######################################
 ## register a new AMI from the snapshot
