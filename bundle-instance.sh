@@ -217,7 +217,7 @@ echo "*** Registering images"
 output=$(ec2-register   $s3_bucket/$prefix$date_fmt.manifest.xml $virtual_type -n "$aws_ami_name" -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY --region $aws_region --architecture $aws_architecture )
 echo $output
 echo $output >> $log_file
-aws_ami_id=${echo $output | cut -d ' ' -f 2}
+aws_ami_id=$(echo $output | cut -d ' ' -f 2)
 
 set +x
 
