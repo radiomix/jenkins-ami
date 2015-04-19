@@ -22,11 +22,15 @@ bundle_dir="/tmp/bundle"
 if [[ ! -d $bundle_dir ]]; then
   sudo mkdir $bundle_dir
 fi
+# check if writable
 result=$(sudo test -w $bundle_dir && echo yes)
-if [[ $result == yes ]]; then
+if [[ $result != yes ]]; then
   echo " ERROR: directory $bundle_dir to bundle the image is not writable!! "
   return -11
 fi
+
+# check ec2 tools
+echo "Using AMI tools "$(sudo -E $EC2_HOME/bin/ec2-version)
 
 # access key from env variable, needed for authentification
 aws_access_key=$AWS_ACCESS_KEY
@@ -35,13 +39,22 @@ aws_access_key=$AWS_ACCESS_KEY
 aws_secret_key=$AWS_SECRET_KEY
 
 # device and mountpoint of the new volume; we put our new AMI onto this device(aws_volume)
-aws_ebs_device=/dev/xvdx
+aws_ebs_device=/dev/xvdxebs
+lsblk
+echo -n "If $aws_ebs_device is not listed, type <ENTERY>, add letters to /dev/xvd"
+read letter
+if [[ "$letter" != "" ]]; then
+    aws_ebs_device=/dev/xvd$letter
+fi
+echo "Using device:$aws_ebs_device"
+
+
 aws_ebs_mount_point=/mnt/ebs
 if [[ ! -d $aws_ebs_mount_point ]]; then
   sudo mkdir $aws_ebs_mount_point
 fi
 result=$(sudo test -w $aws_ebs_mount_point && echo yes)
-if [[ $result == yes ]]; then
+if [[ $result != yes ]]; then
   echo " ERROR: directory $aws_ebs_mount_point to mount the image is not writable!! "
   return -12
 fi
@@ -57,19 +70,11 @@ aws_avail_zone=$(curl -s http://169.254.169.254/latest/meta-data/placement/avail
 ## instance id
 aws_instance_id=$(curl -s http://169.254.169.254/latest/meta-data/instance-id/)
 
-# base AMI the instance was launched off, needed to get kernel, virtual. type etc
-aws_ami_id=$AWS_AMI_ID
-if [[ "$aws_ami_id" == "" ]]; then
-  echo " ERROR: No AWS_AMI_ID given!! "
-  exit -1
-fi
-echo "Using AMI id :$aws_ami_id"
-
 # region
 aws_region=$AWS_REGION
 if [[ "$aws_region" == "" ]]; then
   echo " ERROR: No AWS_REGION given!! "
-  exit -2
+  return -2
 fi
 echo "Using region: $aws_region"
 
@@ -77,45 +82,96 @@ echo "Using region: $aws_region"
 aws_architecture=$AWS_ARCHITECTURE
 if [[ "$aws_architecture" == "" ]]; then
   echo " ERROR: No AWS_ARCHITECTURE given!! "
-  exit -3
+  return -3
 fi
 echo "Using: architechture: $aws_architecture"
-
 
 # x509 cert/pk file
 if [[ "$AWS_PK_PATH" == "" ]]; then
   echo " ERROR: X509 private key file \"$AWS_PK_PATH\" not found!! "
-  exit -21
+  return -21
 fi
 if [[ "$AWS_CERT_PATH" == "" ]]; then
   echo " ERROR: X509 cert key file \"$AWS_CERT_PATH\" not found!! "
-  exit -22
+  return -22
 fi
+
+# base AMI the instance was launched off, needed to get kernel, virtual. type etc
+aws_ami_id=$AWS_AMI_ID
+if [[ "$aws_ami_id" == "" ]]; then
+  echo -n "Please type in the AMI Id to be copied:"
+  read aws_ami_id
+  if [[ "$aws_ami_id" == "" ]]; then
+  	echo " ERROR: No AWS_AMI_ID given!! "
+  	return -31
+  fi
+  aws_ami_description=$(sudo -E $EC2_HOME/bin/ec2-describe-images --region $aws_region $aws_ami_id)
+  if [[ "$aws_ami_description" == "" ]]; then
+  	echo " ERROR: Could not find AMI $aws_ami_id "
+  	return -32
+  fi
+fi
+export AWS_AMI_ID=$aws_ami_id
+echo "Using AMI id :$aws_ami_id"
+
 
 ####TODO ### check for proper S3 bucket and manifest file
 # AWS S3 Bucket 
 s3_bucket=$AWS_S3_BUCKET
+if [[ "$s3_bucket" == "" ]]; then
+  echo "Please type in the AWS S3 bucket:"
+  read s3_bucket
+fi
+export AWS_S3_BUCKET=$s3_bucket
+echo "Using AWS S3 bucket:$s3_bucket"
+
+
+
 manifest=$AWS_MANIFEST
+if [[ "$manifest" == "" ]]; then
+  echo -n "Please type in the AMI manifest file name:"
+  read manifest
+fi
+export AWS_MANIFEST=$manifest
+echo "Using AMI manifest:$manifest"
 
 
 ## config variables
 
 ######################################
 ## creating ebs volume to be bundle root dev
-command=$(sudo -E $EC2_AMITOOL_HOME/bin/ec2-create-volume --size 10 --region $aws_region --availability-zone $aws_avail_zone)
-rest=${command/VOLUME/""}
-aws_volume_id=${rest:0:13}
-echo "AWS-Volume created:$aws_volume_id"
+output=$(sudo -E $EC2_HOME/bin/ec2-create-volume --size 12 --region $aws_region --availability-zone $aws_avail_zone)
+aws_volume_id=$(echo $output | cut -d ' ' -f 2)
+if [[ "$aws_volume_id" == "" ]]; then
+  echo " ERROR: No Aws Volume created!"
+  return 42
+fi
+echo -n "AWS-Volume created:$aws_volume_id, waiting to be available"
 
 ######################################
-## attache volume
-sudo -u $EC2_AMITOOL_HOME/bin/ec2-attache-volume $aws_volume_id -i $aws_instance_id --device $aws_ebs_device --region $aws_region
+## wait until volume is available
+output=""
+while [[ "$output" == "" ]]
+do
+    output=$($EC2_HOME/bin/ec2-describe-volumes --region $aws_region $aws_volume_id | grep available)
+    echo -n " ."
+    sleep 1
+done
+echo ""
+lsblk
+
+
+######################################
+## attach volume
+sudo -E $EC2_HOME/bin/ec2-attach-volume $aws_volume_id -i $aws_instance_id --device $aws_ebs_device --region $aws_region
 
 ######################################
 ## download and unbundle instance store based AMI
-$EC2_AMITOOL_HOME/bin/ec2-download-bundle -b  $s3_bucket -m $manifest  -a $AWS_ACCESS_KEY -s $AWS_SECRET_KEY --privatekey $AWS_PK_PATH -d $bundle_dir
+echo " Downloading manifest $manifest from S3 bucket $s3_bucket"
+sudo -E $EC2_AMITOOL_HOME/bin/ec2-download-bundle -b "$s3_bucket" -m "$manifest"  -a $AWS_ACCESS_KEY -s $AWS_SECRET_KEY --privatekey $AWS_PK_PATH -d $bundle_dir --region $aws_region
 cd $bundle_dir
-$EC2_AMITOOL_HOME/bin/ec2-unbundle -m $manifest --privatekey $AWS_PK_PATH 
+echo " Unbundling $manifest in $(pwd)"
+sudo -E $EC2_AMITOOL_HOME/bin/ec2-unbundle -m $manifest --privatekey $AWS_PK_PATH 
 
 ######################################
 ## copy image to EBS volume
@@ -129,10 +185,12 @@ sudo mount $aws_ebs_device $aws_ebs_mount_point
 
 ######################################
 ## edit /etc/fstab to remove ephimeral partitions
-echo "Edit /etc/fstab to remove ephimeral partitions"
-grep ephimeral /etc/fstab
-sleep 5
-sudo vi /etc/fstab
+ephimeral=$(grep ephimeral /etc/fstab)
+if [[ "$ephimeral" != "" ]]; then
+    echo "Edit /etc/fstab to remove ephimeral partitions"
+    sleep 5
+    sudo vi /etc/fstab
+fi
 
 ######################################
 ## unmount EBS volume
