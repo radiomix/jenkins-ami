@@ -60,7 +60,7 @@ if [[ ! -d $bundle_dir ]]; then
   sudo mkdir $bundle_dir
 fi
 result=$(sudo test -w $bundle_dir && echo yes)
-if [[ $result == yes ]]; then
+if [[ $result != yes ]]; then
   echo " ERROR: directory $bundle_dir to bundle the image is not writable!! "
   return -11
 fi
