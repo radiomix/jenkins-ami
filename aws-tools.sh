@@ -58,6 +58,7 @@ wget http://s3.amazonaws.com/ec2-downloads/ec2-api-tools.zip
 wget http://s3.amazonaws.com/ec2-downloads/ec2-ami-tools.zip
 sudo unzip -q ec2-api-tools.zip -d /usr/local/ec2/
 sudo unzip -q ec2-ami-tools.zip  -d /usr/local/ec2/
+rm -f ec2-ami-tools.zip ec2-api-tools.zip
 
 ######################################
 # get java install path
