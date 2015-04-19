@@ -87,7 +87,7 @@ log_file=bundle-$date_fmt.log
 touch $log_file
 
 # AMI id we are bundling (This one!)
-current_ami_id $(curl -s http://169.254.169.254/latest/meta-data/ami-id) 
+current_ami_id=$(curl -s http://169.254.169.254/latest/meta-data/ami-id) 
 echo "*** Bundling AMI:"$current_ami_id 
 echo "*** Bundling AMI:"$current_ami_id >> $log_file
 
