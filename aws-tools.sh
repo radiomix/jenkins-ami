@@ -177,8 +177,8 @@ then
         echo "*** ERROR: AWS X509 PK FILE NOT FOUND IN:$awsPkPath"
         exit -1
   fi
-  export AWS_PK_PATH=$awsPkPath
 fi
+export AWS_PK_PATH=$awsPkPath
 
 echo "*** Using x509-cert.pem \"$AWS_CERT_PATH\""
 echo "*** Using x509-pk.pem \"$AWS_PK_PATH\""
