@@ -34,7 +34,7 @@ if [[ "$aws_region" == "" ]]; then
   echo " ERROR: No AWS_REGION given!! "
   return -2
 fi
-echo "Using region: $aws_region"
+echo "Using region:$aws_region"
 
 # architecture
 aws_architecture=$AWS_ARCHITECTURE
@@ -42,7 +42,7 @@ if [[ "$aws_architecture" == "" ]]; then
   echo " ERROR: No AWS_ARCHITECTURE given!! "
   return -3
 fi
-echo "Using region: $aws_region"
+echo "Using architecture:$aws_architecture"
 
 
 # ami descriptions and ami name
@@ -59,7 +59,8 @@ bundle_dir="/mnt/image/"
 if [[ ! -d $bundle_dir ]]; then
   sudo mkdir $bundle_dir
 fi
-if [[ ! -d $bundle_dir ]]; then
+result=$(sudo test -w $bundle_dir && echo yes)
+if [[ $result == yes ]]; then
   echo " ERROR: directory $bundle_dir to bundle the image is not writable!! "
   return -11
 fi
@@ -229,7 +230,7 @@ echo "*** Block device mapping:"$blockDevice
 echo "*** Partition flag:"$partition
 echo "*** Virtualization:"$virtual_type
 echo "*** S3 Bucket:"$s3_bucket
-echo "*** Manifest:"$s3_bucket/$prefix$date_fmt.manifest.xml
+echo "*** Manifest:"$prefix$date_fmt.manifest.xml
 echo "*** Region:"$aws_region
 echo "*** AMI name:"$aws_ami_name
 echo "*** AMI Id:"$aws_ami_id 
@@ -247,7 +248,7 @@ echo "*** Block device mapping:"$blockDevice  >> $log_file
 echo "*** Partition flag:"$partition   >> $log_file
 echo "*** Virtualization:"$virtual_type  >> $log_file
 echo "*** S3 Bucket:"$s3_bucket  >> $log_file
-echo "*** Manifest:"$s3_bucket/$prefix$date_fmt.manifest.xml  >> $log_file
+echo "*** Manifest:"$prefix$date_fmt.manifest.xml  >> $log_file
 echo "*** Region:"$aws_region  >> $log_file
 echo "*** AMI name:"$aws_ami_name  >> $log_file
 echo "*** AMI Id:"$aws_ami_id >> $log_file
