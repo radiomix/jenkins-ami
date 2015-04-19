@@ -45,15 +45,13 @@ fi
 echo "Using region: $aws_region"
 
 
-# descriptions
+# ami descriptions and ami name
 aws_ami_description="Intermediate AMI snapshot, for backup-reasons"
 date_fmt=$(date '+%F-%H-%M')
 string=$(grep ID /etc/lsb-release)
 id=${string##*=}
-echo $id
 string=$(grep RELEASE /etc/lsb-release)
 release=${string##*=}
-echo $release
 aws_ami_name="$id-$release-bundle-instance-$date_fmt"
 
 # bundle directory, should be on a partition with lots of space
@@ -208,10 +206,10 @@ sudo -E $EC2_HOME/bin/ec2-version
 echo "*** Bundleing AMI, this may take several minutes "
 set -x
 sudo -E $EC2_AMITOOL_HOME/bin/ec2-bundle-vol -k $AWS_PK_PATH -c $AWS_CERT_PATH -u $AWS_ACCOUNT_ID -r x86_64 -e /tmp/cert/ -d $bundle_dir -p $prefix$date_fmt  $blockDevice $partition --batch
-##TODO adjust ami name to ec2-bundle-vol command
+
 echo "*** Uploading AMI bundle to $s3_bucket "
 ec2-upload-bundle -b $s3_bucket -m $bundle_dir/$prefix$date_fmt.manifest.xml -a $AWS_ACCESS_KEY -s $AWS_SECRET_KEY --region $aws_region
-## only ec2-register needs jre installed!
+
 echo "*** Registering images"
 command=$(ec2-register   $s3_bucket/$prefix$date_fmt.manifest.xml $virtual_type -n "$aws_ami_name" -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY --region $aws_region --architecture $aws_architecture )
 echo $command
