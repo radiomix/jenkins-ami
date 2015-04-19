@@ -19,7 +19,7 @@
 #######################################
 ## config variables
 
-# aws credentials, mayb in env variables?
+# aws credentials, may be in env variables?
 aws_secret_key=$AWS_SECRET_KEY
 aws_access_key=$AWS_ACCESS_KEY
 aws_account_id=$AWS_ACCOUNT_ID
