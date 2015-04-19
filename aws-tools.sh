@@ -107,28 +107,28 @@ if [[ "$aws_access_key" == "" ]]
 then
   echo -n "Enter your AWS_ACCESS_KEY:"
   read aws_access_key
-  export AWS_ACCESS_KEY=$aws_access_key
 fi
+export AWS_ACCESS_KEY=$aws_access_key
 
 if [[ "$aws_secret_key" == "" ]]
 then
   echo -n "Enter your AWS_SECRET_KEY:"
   read aws_secret_key
-  export AWS_SECRET_KEY=$aws_secret_key
 fi
+export AWS_SECRET_KEY=$aws_secret_key
 
 if [[ "$aws_account_id" == "" ]]
 then
   echo -n "Enter your AWS_ACCOUNT_ID:"
   read aws_account_id
-  export AWS_ACCOUNT_ID=$aws_account_id
 fi
+export AWS_ACCOUNT_ID=$aws_account_id
 
 if [[ "$aws_region" == "" ]]; then
     echo -n "Enter your AWS_REGION:"
     read aws_region
-    export AWS_REGION=$aws_region
 fi
+export AWS_REGION=$aws_region
 
 if [[ "$aws_architecture" == "" ]]; then
     aws_architecture="x86_64"
@@ -137,14 +137,8 @@ if [[ "$aws_architecture" == "" ]]; then
     if [[ "$input" != "" ]]; then
         aws_architecture="$input"
     fi
-    export AWS_ARCHITECTURE=$aws_architecture
 fi
-
-export AWS_ACCESS_KEY
-export AWS_SECRET_KEY
-export AWS_ACCOUND_ID
-export AWS_REGION
-export AWS_ARCHITECTURE
+export AWS_ARCHITECTURE=$aws_architecture
 
 aws_access_key=${AWS_ACCESS_KEY:0:3}********${AWS_ACCESS_KEY:${#AWS_ACCESS_KEY}-3:3}
 aws_secret_key=${AWS_SECRET_KEY:0:3}********${AWS_SECRET_KEY:${#AWS_SECRET_KEY}-3:3}
