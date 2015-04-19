@@ -240,8 +240,8 @@ echo "*** Virtualization:"$virtual_type
 echo "*** S3 Bucket:"$s3_bucket
 echo "*** Manifest:"$prefix$date_fmt.manifest.xml
 echo "*** Region:"$aws_region
-echo "*** AMI name:"$aws_ami_name
-echo "*** AMI Id:"$aws_ami_id 
+echo "*** Registerd AMI name:"$aws_ami_name
+echo "*** Registerd AMI Id:"$aws_ami_id 
 echo "*** "
 echo "*** FINISHED Bundling AMI:$current_ami_id  in $period seconds"
 
@@ -258,6 +258,6 @@ echo "*** Virtualization:"$virtual_type  >> $log_file
 echo "*** S3 Bucket:"$s3_bucket  >> $log_file
 echo "*** Manifest:"$prefix$date_fmt.manifest.xml  >> $log_file
 echo "*** Region:"$aws_region  >> $log_file
-echo "*** AMI name:"$aws_ami_name  >> $log_file
-echo "*** AMI Id:"$aws_ami_id >> $log_file
+echo "*** Registerd AMI name:"$aws_ami_name  >> $log_file
+echo "*** Registerd AMI Id:"$aws_ami_id >> $log_file
 echo "*** FINISHED Bundling AMI:$current_ami_id  in $period seconds" >> $log_file
