@@ -198,8 +198,9 @@ echo "*** Using partition:     $partition" >> $log_file
 echo "*** Using virtual_type:  $virtual_type"  >> $log_file
 echo "*** Using block_device:  $blockDevice"  >> $log_file
 echo "*** Using s3_bucket:     $s3_bucket"  >> $log_file
-
 sleep 5
+start=$SECONDS
+echo "*** Starting to bundle at:"$start >> $log_file
 
 #######################################
 ### this is bundle-work
@@ -217,12 +218,16 @@ echo $output
 echo $output >> $log_file
 
 aws_ami_id=${echo $output | cut -d ' ' -f 1}
-
+set +x
 
 export AWS_AMI_ID=$aws_ami_id
 export AWS_S3_BUCKER=$s3_bucket
 export AWS_MANIFEST=$prefix$date_fmt.manifest.xml
-set +x
+
+## profiling
+end=$SECONDS
+period=$(($end - $start))
+
 echo "*** "
 echo "*** PARAMETER USED:"
 echo "*** Root device:"$root_device
@@ -236,8 +241,8 @@ echo "*** Manifest:"$prefix$date_fmt.manifest.xml
 echo "*** Region:"$aws_region
 echo "*** AMI name:"$aws_ami_name
 echo "*** AMI Id:"$aws_ami_id 
-echo "*** FINISHED Bundling AMI:"$current_ami_id 
 echo "*** "
+echo "*** FINISHED Bundling AMI:$current_ami_id  in $period seconds"
 
 ## write parameter to log file
 
@@ -254,4 +259,4 @@ echo "*** Manifest:"$prefix$date_fmt.manifest.xml  >> $log_file
 echo "*** Region:"$aws_region  >> $log_file
 echo "*** AMI name:"$aws_ami_name  >> $log_file
 echo "*** AMI Id:"$aws_ami_id >> $log_file
-echo "*** FINISHED Bundling AMI:"$current_ami_id >> $log_file
+echo "*** FINISHED Bundling AMI:$current_ami_id  in $period seconds" >> $log_file
