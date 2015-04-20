@@ -52,10 +52,10 @@ string=$(grep ID /etc/lsb-release)
 id=${string##*=}
 string=$(grep RELEASE /etc/lsb-release)
 release=${string##*=}
-aws_ami_name="$id-$release-bundle-instance-$date_fmt"
+aws_ami_name="jenkinspoc-$id-$release-bundle-instance-$date_fmt"
 
 # bundle directory, should be on a partition with lots of space
-bundle_dir="/mnt/image/"
+bundle_dir="/mnt/ami-bundle/"
 if [[ ! -d $bundle_dir ]]; then
   sudo mkdir $bundle_dir
 fi
@@ -66,7 +66,7 @@ if [[ $result != yes ]]; then
 fi
 
 # AWS S3 Bucket 
-s3_bucket="im7-ami/images/copied"
+s3_bucket="elemica-jenkinspoc/ami-bundle/$date_fmt"
 
 # x509 cert/pk file
 if [[ "$AWS_PK_PATH" == "" ]]; then
@@ -97,8 +97,8 @@ echo "*** Bundling AMI:$current_ami_id:"$output >> $log_file
 ## packages needed anyways
 echo "*** Installing packages 'gdisk kpartx'"
 ## packages needed anyways
-#sudo apt-get update
-sudo apt-get install -y gdisk kpartx
+sudo apt-get update
+sudo apt-get install -y gdisk kpartx 
 
 #######################################
 ## find root device to check grub version
@@ -177,11 +177,11 @@ if  [[ "$blockDevice" == "y" ]]; then
   read blockDevice
   if  [[ "$blockDevice" == "x" ]]; then
     blockDevice="  --block-device-mapping ami=xvda,root=/dev/xvda1 "
-    prefix=$prefix"xvda-"
+    # Peter out:prefix=$prefix"xvda-"
     ## s3_bucket=$s3_bucket"/xvda"
   else
     blockDevice="  --block-device-mapping ami=sda,root=/dev/sda1 "
-    prefix=$prefix"sda-"
+    # Peter out:prefix=$prefix"sda-"
     ##s3_bucket=$s3_bucket"/sda"
   fi
 else
