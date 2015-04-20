@@ -8,24 +8,6 @@ EBS-backed AMI.
   backed AMI 
 + Replay the Jenkins backup to the EBS backed AMI
 
-
-## AMIs
-As source AMIs we use two Ubuntu LTS Server AMIs
- + [ubuntu-precise-12.04-amd64-server](http://thecloudmarket.com/image/ami-a7785897--ubuntu-images-hvm-instance-ubuntu-precise-12-04-amd64-server-20150227) 
-an Ubuntu 12.04 LTS Server x86_64 AMI, instance store for region us-west-2 
- + [ubuntu-trusty-14.04-amd64-server](http://thecloudmarket.com/image/ami-29ebb519--ubuntu-images-hvm-ssd-ubuntu-trusty-14-04-amd64-server-20150123) 
-an Ubuntu 14.04 LTS Server x86_64 AMI, instance store for region us-west-2 
-
-## Bundling the Instance stored into a new Instance stored AMI
-The [AWS docu]( http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/creating-an-ami-instance-store.htm) 
-describes how to create and copy an instance stored AMI. We split the
-task in two: First we install the AWS tools and check for AWS
-credentials. Then we prepare and bundle the AMI. As these scripts depend on
-exported environment variables, they have to be called with a period: 
-``` bash
-$:>. this-script.sh
-```
-
 ### Files
  + [`aws-tools.sh`](aws-tools.sh) Installs `ec2-api-tools` and `ec2-ami-tools` and 
 packages `ruby`, `unzip`, `wget` and `openssl`, checks for Java installatation and 
@@ -38,7 +20,7 @@ asks to install `default-jre`, exports env variables for AWS credentials.
 returning [default-paravirtual|default-hvm] and set bundle parameters
   - bundles and uploads the image and registers an AMI
 
-Prerequisites
+### Prerequisites
 -------------
 `aws-stools.sh` reads and exports some environment variables:
 
@@ -61,13 +43,38 @@ Prerequisites
 installed.
  + `JAVA_HOME=$java_home`
 
-Usage
-----
+#### X.509 Cert and Private Key
+EC2 commands partly use an X.509 certificate -even self signed- to
+encrypt communication. You can either generate these files from the AWS
+console under _Security Credentials_ or generate them by hand, after
+openssl installation. To generate and self sign a certificate valid for
+10 years in 2048 bit type:
+```bash
+openssl genrsa 2048 > private-key.pem
+penssl req -new -x509 -nodes -sha1 -days 3650 -key private-key.pem -outform PEM > certificate.pem
+```
+The second step asks for information included in the certificate. You
+can use the default or input your data.
+The Certificate has to be uploaded to the AWS console, showing a thumbprint. It is 
+usefull to rename the cert and key file to reflect the thumbprint. 
+Both cert and private key have to be uploaded to the instance, before bundling it.
+
+### Processes to stop
+To bundle an instance, all programs writing to root device have to be
+stopped and restarted:
+ + /etc/rc2.d/jenkins
+ + /etc/rc2.d/rabbitmq-server
+ + /etc/rc2.d/redis-server
+ + /etc/rc2.d/jpdm
+ + erlang process `epmd` by hand
+
+### Usage
 Run the two shell scripts with a period in this orde:
 ```
-$ . aws-tools.sh
-$ . bundle_intance.sh
+$source  aws-tools.sh
+$source bundle_intance.sh
 ```
+
 We recommend the following parameter during a `bundle_instance.sh` run:
 
 **virtualization type `paravirtual`**
@@ -79,11 +86,28 @@ We recommend the following parameter during a `bundle_instance.sh` run:
  * _`--block-device-mapping`_  **YES**
  * _Select root device [xvda|sda] in device mapping_ **SDA**
 
-#### AMIs
+## AMIs
+
+As source AMIs we use two Ubuntu LTS Server AMIs
+ + [ubuntu-precise-12.04-amd64-server](http://thecloudmarket.com/image/ami-a7785897--ubuntu-images-hvm-instance-ubuntu-precise-12-04-amd64-server-20150227) 
+an Ubuntu 12.04 LTS Server x86_64 AMI, instance store for region us-west-2 
+ + [ubuntu-trusty-14.04-amd64-server](http://thecloudmarket.com/image/ami-29ebb519--ubuntu-images-hvm-ssd-ubuntu-trusty-14-04-amd64-server-20150123) 
+an Ubuntu 14.04 LTS Server x86_64 AMI, instance store for region us-west-2 
+
 The following AMIs have been successfully bundled and registered:
 - ami-75755545 Ubuntu 12.04, amd64, instance-store, aki-fc8f11cc
 - ami-a7785897 Ubuntu 12.04, amd64, hvm;instance-store, hvm
 - ami-75c09945 Ubuntu 10.04, amd64, instance-store, aki-fc8f11cc
+
+### Bundling the Instance stored into a new Instance stored AMI
+The [AWS docu]( http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/creating-an-ami-instance-store.htm) 
+describes how to create and copy an instance stored AMI. We split the
+task in two: First we install the AWS tools and check for AWS
+credentials. Then we prepare and bundle the AMI. As these scripts depend on
+exported environment variables, they have to be called with a period: 
+``` bash
+$source this-script.sh
+```
 
 ## Packer Files
 The approach is slightly adapted from [Building Ubuntu 12.04 and 14.04 HVM Instance Store AMIs](https://github.com/Lumida/packer/wiki/Building-Ubuntu-12.04-and-14.04-HVM-Instance-Store-AMIs).
