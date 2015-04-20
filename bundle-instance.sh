@@ -47,7 +47,7 @@ echo "Using architecture:$aws_architecture"
 
 # ami descriptions and ami name
 aws_ami_description="Intermediate AMI snapshot, for backup-reasons"
-date_fmt=$(date '+%F-%H-%M')
+date_fmt=$(date '+%F-%H-%M-%S') ; echo $date_fmt; return
 string=$(grep ID /etc/lsb-release)
 id=${string##*=}
 string=$(grep RELEASE /etc/lsb-release)
