@@ -22,6 +22,33 @@
 
 #######################################
 ## config variables
+
+# ami descriptions and ami name
+aws_ami_description="Intermediate AMI snapshot, for backup-reasons"
+date_fmt=$(date '+%F-%H-%M-%S')
+string=$(grep ID /etc/lsb-release)
+id=${string##*=}
+string=$(grep RELEASE /etc/lsb-release)
+release=${string##*=}
+aws_ami_name="jenkinspoc-$id-$release-bundle-instance-$date_fmt"
+
+# bundle directory, should be on a partition with lots of space
+bundle_dir="/mnt/ami-bundle/"
+if [[ ! -d $bundle_dir ]]; then
+  sudo mkdir $bundle_dir
+fi
+result=$(sudo test -w $bundle_dir && echo yes)
+if [[ $result != yes ]]; then
+  echo " ERROR: directory $bundle_dir to bundle the image is not writable!! "
+  return -11
+fi
+
+# AWS S3 Bucket 
+s3_bucket="elemica-jenkinspoc/ami-bundle/$date_fmt"
+
+# image file prefix
+prefix="bundle-instance-"$date_fmt
+
 # access key from env variable, needed for authentification
 aws_access_key=$AWS_ACCESS_KEY
 
@@ -44,30 +71,6 @@ if [[ "$aws_architecture" == "" ]]; then
 fi
 echo "Using architecture:$aws_architecture"
 
-
-# ami descriptions and ami name
-aws_ami_description="Intermediate AMI snapshot, for backup-reasons"
-date_fmt=$(date '+%F-%H-%M-%S') ; echo $date_fmt; return
-string=$(grep ID /etc/lsb-release)
-id=${string##*=}
-string=$(grep RELEASE /etc/lsb-release)
-release=${string##*=}
-aws_ami_name="jenkinspoc-$id-$release-bundle-instance-$date_fmt"
-
-# bundle directory, should be on a partition with lots of space
-bundle_dir="/mnt/ami-bundle/"
-if [[ ! -d $bundle_dir ]]; then
-  sudo mkdir $bundle_dir
-fi
-result=$(sudo test -w $bundle_dir && echo yes)
-if [[ $result != yes ]]; then
-  echo " ERROR: directory $bundle_dir to bundle the image is not writable!! "
-  return -11
-fi
-
-# AWS S3 Bucket 
-s3_bucket="elemica-jenkinspoc/ami-bundle/$date_fmt"
-
 # x509 cert/pk file
 if [[ "$AWS_PK_PATH" == "" ]]; then
   echo " ERROR: X509 private key file \"$AWS_PK_PATH\" not found!! "
@@ -77,9 +80,6 @@ if [[ "$AWS_CERT_PATH" == "" ]]; then
   echo " ERROR: X509 cert key file \"$AWS_CERT_PATH\" not found!! "
   return -22
 fi
-
-# image file prefix
-prefix="bundle-instance-"$date_fmt
 
 # log file
 log_file=bundle-$date_fmt.log
@@ -97,10 +97,8 @@ output=$($EC2_AMITOOL_HOME/bin/ec2-describe-images --region $aws_region $current
 echo "*** Bundling AMI:$current_ami_id:"$output
 echo "*** Bundling AMI:$current_ami_id:"$output >> $log_file
 
-
 ## packages needed anyways
 echo "*** Installing packages 'gdisk kpartx'"
-## packages needed anyways
 sudo apt-get update
 sudo apt-get install -y gdisk kpartx 
 
@@ -139,6 +137,7 @@ read edit
 if  [[ "$edit" == "y" ]]; then
   sudo vi /boot/grub/menu.lst
 fi
+
 #######################################
 ### remove evi entries in /etc/fstab if exist
 echo "*** Checking for efi/uefi partitions in /etc/fstab"
@@ -155,8 +154,7 @@ fi
 ### returning [default-paravirtual|default-hvm]
 meta_data_profile=$(curl -s http://169.254.169.254/latest/meta-data/profile/ | grep "default-")
 profile=${meta_data_profile##default-}
-### remember virtual. type in s3-bucket name and parameter virtual. type
-## s3_bucket=$s3_bucket"/"$profile
+### used in ec2-bundle-volume
 virtual_type="--virtualization-type "$profile" "
 aws_ami_name=$aws_ami_name"-"$profile
 
@@ -173,7 +171,7 @@ if [[ "$parameter" == "y" ]]; then
 fi
 
 #######################################
-### do we need --block-device-mapping to bundle?
+### do we need --block-device-mapping for ec2-bundle-volume ?
 echo "Do you want to bundle with parameter \"--block-device-mapping \"? [y|N]:"
 read blockDevice
 if  [[ "$blockDevice" == "y" ]]; then
