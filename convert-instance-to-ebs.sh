@@ -119,7 +119,7 @@ echo "Using AMI id :$aws_ami_id"
 # AWS S3 Bucket 
 s3_bucket=$AWS_S3_BUCKET
 if [[ "$s3_bucket" == "" ]]; then
-  echo "Please type in the AWS S3 bucket:"
+  echo -n "Please type in the AWS S3 bucket:"
   read s3_bucket
 fi
 export AWS_S3_BUCKET=$s3_bucket
