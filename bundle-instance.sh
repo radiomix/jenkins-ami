@@ -79,7 +79,7 @@ if [[ "$AWS_CERT_PATH" == "" ]]; then
 fi
 
 # image file prefix
-prefix="bundle-instance-"
+prefix="bundle-instance-"$date_fmt
 
 # log file
 log_file=bundle-$date_fmt.log
@@ -88,12 +88,16 @@ touch $log_file
 # AMI id we are bundling (This one!)
 current_ami_id=$(curl -s http://169.254.169.254/latest/meta-data/ami-id) 
 output=$($EC2_AMITOOL_HOME/bin/ec2-describe-images --region $aws_region $current_ami_id)
+
+## end config variables
+######################################
+
+
+######################################
 echo "*** Bundling AMI:$current_ami_id:"$output
 echo "*** Bundling AMI:$current_ami_id:"$output >> $log_file
 
-## config variables
 
-######################################
 ## packages needed anyways
 echo "*** Installing packages 'gdisk kpartx'"
 ## packages needed anyways
@@ -101,8 +105,16 @@ sudo apt-get update
 sudo apt-get install -y gdisk kpartx 
 
 #######################################
+## check grub version, we need grub legacy
+echo  "*** Installing grub verions 0.9x"
+sudo grub-install --version
+sudo apt-get install -y grub
+grub_version=$(grub --version)
+echo "*** Grub version:$grub_version."
+
+#######################################
 ## find root device to check grub version
-echo "*** Checking for grub version"
+echo "*** Checking root device"
 mount | grep sda
 lsblk  #not on all distros available
 ### read the root device
@@ -112,14 +124,6 @@ root_device="/dev/$_device"
 ## check for root defice
 sudo fdisk -l $root_device
 sudo file -s $root_device | grep "part /$"
-
-#######################################
-## check grub version, we need grub legacy
-sudo grub-install --version
-echo  "*** Installing grub verions 0.9x"
-sudo apt-get install -y grub
-grub_version=$(grub --version)
-echo "*** Grub version:$grub_version."
 
 #######################################
 ### show boot cmdline parameter and adjust /boot/grub/menu.lst
@@ -177,17 +181,12 @@ if  [[ "$blockDevice" == "y" ]]; then
   read blockDevice
   if  [[ "$blockDevice" == "x" ]]; then
     blockDevice="  --block-device-mapping ami=xvda,root=/dev/xvda1 "
-    # Peter out:prefix=$prefix"xvda-"
-    ## s3_bucket=$s3_bucket"/xvda"
   else
     blockDevice="  --block-device-mapping ami=sda,root=/dev/sda1 "
-    # Peter out:prefix=$prefix"sda-"
-    ##s3_bucket=$s3_bucket"/sda"
   fi
 else
     blockDevice=""
 fi
-
 
 #######################################
 echo "*** Using partition:     $partition"
@@ -205,16 +204,25 @@ start=$SECONDS
 
 #######################################
 ### this is bundle-work
-sudo -E $EC2_HOME/bin/ec2-version
-echo "*** Bundleing AMI, this may take several minutes "
+### we write the command string to $log_file and execute it 
 set -x
-sudo -E $EC2_AMITOOL_HOME/bin/ec2-bundle-vol -k $AWS_PK_PATH -c $AWS_CERT_PATH -u $AWS_ACCOUNT_ID -r x86_64 -e /tmp/cert/ -d $bundle_dir -p $prefix$date_fmt  $blockDevice $partition --batch
+sudo -E $EC2_HOME/bin/ec2-version
+
+echo "*** Bundleing AMI, this may take several minutes "
+bundle_command="sudo -E $EC2_AMITOOL_HOME/bin/ec2-bundle-vol -k $AWS_PK_PATH -c $AWS_CERT_PATH -u $AWS_ACCOUNT_ID -r x86_64 -e /tmp/cert/ -d $bundle_dir -p $prefix  $blockDevice $partition --batch"
+echo $bundle_command >> $log_file
+sudo -E $EC2_AMITOOL_HOME/bin/ec2-bundle-vol -k $AWS_PK_PATH -c $AWS_CERT_PATH -u $AWS_ACCOUNT_ID -r x86_64 -e /tmp/cert/ -d $bundle_dir -p $prefix $blockDevice $partition --batch
 
 echo "*** Uploading AMI bundle to $s3_bucket "
-$EC2_AMITOOL_HOME/bin/ec2-upload-bundle -b $s3_bucket -m $bundle_dir/$prefix$date_fmt.manifest.xml -a $AWS_ACCESS_KEY -s $AWS_SECRET_KEY --region $aws_region
+upload_command="$EC2_AMITOOL_HOME/bin/ec2-upload-bundle -b $s3_bucket -m $bundle_dir/$prefix.manifest.xml -a $AWS_ACCESS_KEY -s $AWS_SECRET_KEY --region $aws_region"
+echo $upload_command >> $log_file
+$EC2_AMITOOL_HOME/bin/ec2-upload-bundle -b $s3_bucket -m $bundle_dir/$prefix.manifest.xml -a $AWS_ACCESS_KEY -s $AWS_SECRET_KEY --region $aws_region
 
 echo "*** Registering images"
-output=$($EC2_HOME/bin/ec2-register   $s3_bucket/$prefix$date_fmt.manifest.xml $virtual_type -n "$aws_ami_name" -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY --region $aws_region --architecture $aws_architecture )
+register_command="$EC2_HOME/bin/ec2-register   $s3_bucket/$prefix.manifest.xml $virtual_type -n "$aws_ami_name" -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY --region $aws_region --architecture $aws_architecture "
+echo $register_command >> $log_file
+
+output=$($EC2_HOME/bin/ec2-register   $s3_bucket/$prefix.manifest.xml $virtual_type -n "$aws_ami_name" -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY --region $aws_region --architecture $aws_architecture )
 echo $output
 echo $output >> $log_file
 aws_ami_id=$(echo $output | cut -d ' ' -f 2)
@@ -223,7 +231,7 @@ set +x
 
 export AWS_AMI_ID=$aws_ami_id
 export AWS_S3_BUCKER=$s3_bucket
-export AWS_MANIFEST=$prefix$date_fmt.manifest.xml
+export AWS_MANIFEST=$prefix.manifest.xml
 
 ## profiling
 end=$SECONDS
@@ -238,7 +246,7 @@ echo "*** Block device mapping:"$blockDevice
 echo "*** Partition flag:"$partition
 echo "*** Virtualization:"$virtual_type
 echo "*** S3 Bucket:"$s3_bucket
-echo "*** Manifest:"$prefix$date_fmt.manifest.xml
+echo "*** Manifest:"$prefix.manifest.xml
 echo "*** Region:"$aws_region
 echo "*** Registerd AMI name:"$aws_ami_name
 echo "*** Registerd AMI Id:"$aws_ami_id 
@@ -256,7 +264,7 @@ echo "*** Block device mapping:"$blockDevice  >> $log_file
 echo "*** Partition flag:"$partition   >> $log_file
 echo "*** Virtualization:"$virtual_type  >> $log_file
 echo "*** S3 Bucket:"$s3_bucket  >> $log_file
-echo "*** Manifest:"$prefix$date_fmt.manifest.xml  >> $log_file
+echo "*** Manifest:"$prefix.manifest.xml  >> $log_file
 echo "*** Region:"$aws_region  >> $log_file
 echo "*** Registerd AMI name:"$aws_ami_name  >> $log_file
 echo "*** Registerd AMI Id:"$aws_ami_id >> $log_file
