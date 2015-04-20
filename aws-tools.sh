@@ -39,12 +39,13 @@ aws_architecture=$AWS_ARCHITECTURE
 ######################################
 ## packages needed anyways
 echo "*** Installing packages 'ruby unzip wget openssl'"
-sudo apt-get -q update
-sudo apt-get -q install -y --force-yes ruby unzip wget openssl
+# sudo apt-get -q update
+# sudo apt-get -q install -y --force-yes ruby unzip wget openssl
 ## we experienced curl SSL errors as in
 ## http://tiku.io/questions/3051603/amazon-ec2-s3-self-signed-certificate-ssl-failure-when-using-ec2-upload-bundle
 ## so we reload the root certificates
-sudo update-ca-certificates
+## Peter comment out
+# sudo update-ca-certificates
 
 ######################################
 ## install api/ami tools under /usr/local/ec2
@@ -62,20 +63,21 @@ rm -f ec2-ami-tools.zip ec2-api-tools.zip
 
 ######################################
 # get java install path
+# used by ec-tools
 echo "*** SETTING JAVA PATH"
 java_bin=$(which java)
-if [[ "$java_bin" == "" ]]; then
-   echo -n " ERROR:  No Java version found! Should Java be installed? [y|N]"
-   read input
-   if [[ "$input" == "y" ]]; then
-   echo "*** Installing Java!"
-        sudo apt-get install -y --force-yes default-jre
-        java_bin=$(which java)
-    else 
-        echo "***  ERROR: No Java version found! EXIT!"
-        exit -11
-    fi
-fi
+# if [[ "$java_bin" == "" ]]; then
+#   echo -n " ERROR:  No Java version found! Should Java be installed? [y|N]"
+#   read input
+#   if [[ "$input" == "y" ]]; then
+#   echo "*** Installing Java!"
+#        sudo apt-get install -y --force-yes default-jre
+#        java_bin=$(which java)
+#    else 
+#        echo "***  ERROR: No Java version found! EXIT!"
+#        exit -11
+#    fi
+#fi
 java_path=$(readlink -f $java_bin)
 echo $java_bin  $java_path
 java_home=${java_path/'/bin/java'/''}
