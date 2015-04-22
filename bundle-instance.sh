@@ -134,7 +134,7 @@ cat /proc/cmdline
 echo "*** Next line holds kernel parameters in /boot/grub/menu.lst:"
 grep ^kernel /boot/grub/menu.lst
 echo
-echo  "Do you want to edit kernel parameter in /boot/grub/menu.list "
+echo  -n "Do you want to edit kernel parameter in /boot/grub/menu.list "
 echo -n "to reflect command line? [y|N]:"
 read edit
 if  [[ "$edit" == "y" ]]; then
@@ -175,7 +175,7 @@ fi
 
 #######################################
 ### do we need --block-device-mapping for ec2-bundle-volume ?
-echo "Do you want to bundle with parameter \"--block-device-mapping \"? [y|N]:"
+echo -n "Do you want to bundle with parameter \"--block-device-mapping \"? [y|N]:"
 read blockDevice
 if  [[ "$blockDevice" == "y" ]]; then
   echo "Root device is set to \"$root_device\". Select root device [xvda|sda] in device mapping:[x|S]"
