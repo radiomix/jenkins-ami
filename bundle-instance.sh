@@ -208,16 +208,19 @@ start=$SECONDS
 ### we write the command string to $log_file and execute it 
 set -x
 sudo -E $EC2_HOME/bin/ec2-version
+sleep 2
 
 echo "*** Bundleing AMI, this may take several minutes "
 bundle_command="sudo -E $EC2_AMITOOL_HOME/bin/ec2-bundle-vol -k $AWS_PK_PATH -c $AWS_CERT_PATH -u $AWS_ACCOUNT_ID -r x86_64 -e /tmp/cert/ -d $bundle_dir -p $prefix  $blockDevice $partition --batch"
 echo $bundle_command >> $log_file
 $bundle_command
+sleep 2
 
 echo "*** Uploading AMI bundle to $s3_bucket "
 upload_command="$EC2_AMITOOL_HOME/bin/ec2-upload-bundle -b $s3_bucket -m $bundle_dir/$prefix.manifest.xml -a $AWS_ACCESS_KEY -s $AWS_SECRET_KEY --region $aws_region"
 echo $upload_command >> $log_file
 $upload_command
+sleep 2
 
 echo "*** Registering images"
 register_command="$EC2_HOME/bin/ec2-register   $s3_bucket/$prefix.manifest.xml $virtual_type -n "$aws_ami_name" -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY --region $aws_region --architecture $aws_architecture "
@@ -226,6 +229,7 @@ output=$register_command
 echo $output
 echo $output >> $log_file
 aws_ami_id=$(echo $output | cut -d ' ' -f 2)
+sleep 2
 
 set +x
 
