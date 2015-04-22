@@ -47,7 +47,8 @@ fi
 if [[ "$AWS_S3_BUCKET" == "" ]]; then
     export AWS_S3_BUCKET="elemica-jenkinspoc/ami-bundle/"
 fi
-s3_bucket="$AWS_S3_BUCKET/$date_fmt"
+## TODO check for double slahes!
+s3_bucket="$AWS_S3_BUCKET$date_fmt"
 
 # image file prefix
 prefix="bundle-instance-"$date_fmt
