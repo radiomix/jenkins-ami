@@ -165,7 +165,7 @@ echo "*** Checking virtualization parameter for type:$profile"
 ## on paravirtual AMI every thing is fine here
 partition=""
 ## for hvm AMI we set partition mbr
-echo "Is virtualization type:$profile correct? [y|N]"
+echo -n "Is virtualization type:$profile correct? [y|N]"
 read parameter
 if [[ "$parameter" == "y" ]]; then
   if  [[ "$profile" == "hvm" ]]; then
