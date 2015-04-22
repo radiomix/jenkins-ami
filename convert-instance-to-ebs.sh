@@ -39,7 +39,7 @@ aws_access_key=$AWS_ACCESS_KEY
 aws_secret_key=$AWS_SECRET_KEY
 
 # device and mountpoint of the new volume; we put our new AMI onto this device(aws_volume)
-aws_ebs_device=/dev/xvdxebs
+aws_ebs_device=/dev/xvdi
 lsblk
 echo -n "If $aws_ebs_device is not listed, type <ENTERY>, add letters to /dev/xvd"
 read letter
@@ -58,11 +58,6 @@ if [[ $result != yes ]]; then
   echo " ERROR: directory $aws_ebs_mount_point to mount the image is not writable!! "
   return -12
 fi
-
-# descriptions
-aws_snapshot_description="Intermediate AMI snapshot, to be deleted after completion"
-date=$(date)
-aws_ami_name="Ubuntu LTS 12.04 Jenkins-Server as of $date"
 
 # aws availability zone
 aws_avail_zone=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone/)
@@ -114,6 +109,11 @@ fi
 export AWS_AMI_ID=$aws_ami_id
 echo "Using AMI id :$aws_ami_id"
 
+# descriptions
+aws_snapshot_description="AMI snapshot of "$aws_ami_id", to be deleted after completion"
+date=$(date)
+aws_ami_name="Ubuntu-LTS-12.04-Jenkins-Server-$(date '+%F-%H-%M-%S')"
+
 
 ####TODO ### check for proper S3 bucket and manifest file
 # AWS S3 Bucket 
@@ -125,8 +125,7 @@ fi
 export AWS_S3_BUCKET=$s3_bucket
 echo "Using AWS S3 bucket:$s3_bucket"
 
-
-
+## manifest of the bundled AMI
 manifest=$AWS_MANIFEST
 if [[ "$manifest" == "" ]]; then
   echo -n "Please type in the AMI manifest file name:"
@@ -135,13 +134,22 @@ fi
 export AWS_MANIFEST=$manifest
 echo "Using AMI manifest:$manifest"
 
+#######################################
+## get processor architecture, virtualization type, and the kernel image (aki) 
+## we might not get the proper description from the base image, if it was bundled
+## without a description 
+#command=$($EC2_AMITOOL_HOME/bin/ec2-describe-images --region $aws_region $aws_ami_id)
+## but we can select a proper kernel for our region.
+source select_pvgrub_kernel.sh
+echo "Using kernel:$AWS_KERNEL"
+
 
 ## config variables
 
 ######################################
 ## creating ebs volume to be bundle root dev
-output=$(sudo -E $EC2_HOME/bin/ec2-create-volume --size 12 --region $aws_region --availability-zone $aws_avail_zone)
-echo $output
+#output=$(sudo -E $EC2_HOME/bin/ec2-create-volume --size 12 --region $aws_region --availability-zone $aws_avail_zone)
+#echo $output
 aws_volume_id=$(echo $output | cut -d ' ' -f 2)
 if [[ "$aws_volume_id" == "" ]]; then
   echo " ERROR: No Aws Volume created!"
@@ -178,7 +186,9 @@ sudo -E $EC2_AMITOOL_HOME/bin/ec2-unbundle -m $manifest --privatekey $AWS_PK_PAT
 ######################################
 ## extract image name and copy image to EBS volume
 image=${manifest/.manifest.xml/""}
+echo "Copying $bundle_dir/$image to $aws_ebs_device. This may take several minutes!"
 sudo dd if=$bundle_dir/$image of=$aws_ebs_device bs=1M
+echo "Checking partition $aws_ebs_device"
 sudo partprobe $aws_ebs_device
 
 ######################################
@@ -198,11 +208,10 @@ fi
 #######################################
 ## create a snapshot and verify it
 echo "Creating Snapshot from Volume:$aws_volume_id. This may take several minutes"
-output=$($EC2_HOME/bin/ec2-create-snapshot $aws_volume_id --region $aws_region -d $aws_snapshot_description -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY )
-rest=${output/SNAPSHOT/""}
-aws_snapshot_id=${rest:0:13}
+output=$($EC2_HOME/bin/ec2-create-snapshot $aws_volume_id --region $aws_region -d "$aws_snapshot_description" -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY )
+aws_snapshot_id=$(echo $output | cut -d ' ' -f 2)
 echo $output
-echo "Using snapshot:$aws_snapshot_id, when completed"
+echo -n "Using snapshot:$aws_snapshot_id, when completed"
 
 #######################################
 ## wait until snapshot is compleeted
@@ -212,30 +221,23 @@ do
     completed=$($EC2_HOME/bin/ec2-describe-snapshots $aws_snapshot_id --region $aws_region | grep completed)
     echo -n ". "
     sleep 3
-done 
-
-#######################################
-## get processor architecture, virtualization type, and the kernel image (aki) 
-## we might not get the proper description from the base image, if it was bundled
-## without a description 
-#command=$($EC2_AMITOOL_HOME/bin/ec2-describe-images --region $aws_region $aws_ami_id)
-## but we can select a proper kernel for our region.
-source select_pvgrub_kernel.sh
+done
+echo ""
 
 #######################################
 ## register a new AMI from the snapshot
-output=$($EC2_HOME/bin/ec2-register -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY --region $aws_region -n $aws_ami_name -s $aws_snapshot_id -a $AWS_ARCHITECTURE --kernel $AWS_KERNEL)
+output=$($EC2_HOME/bin/ec2-register -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY --region $aws_region -n "$aws_ami_name" -s $aws_snapshot_id -a $AWS_ARCHITECTURE --kernel $AWS_KERNEL)
 echo $output
-aws_registerd_ami_id=$(echo $img | cut -d ' ' -f 2)
+aws_registerd_ami_id=$(echo $output | cut -d ' ' -f 2)
 echo "Registerd new AMI:$aws_registerd_ami_id"
 
 ######################################
 ## unmount and detach EBS volume
-sudo umount $aws_ebs_volume
+sudo umount $aws_ebs_device
 $EC2_HOME/bin/ec2-detach-volume $aws_volume_id --region $aws_region
 
 #######################################
 ## and delete the volume
 ## ec2-delete-volume $aws_volume_id 
 #######################################
-echo "Finished"
+echo "Finished! Created AMI:$aws_registerd_ami_id"
