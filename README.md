@@ -98,6 +98,7 @@ The following AMIs have been successfully bundled and registered:
 - ami-75755545 Ubuntu 12.04, amd64, instance-store, aki-fc8f11cc
 - ami-a7785897 Ubuntu 12.04, amd64, hvm;instance-store, hvm
 - ami-75c09945 Ubuntu 10.04, amd64, instance-store, aki-fc8f11cc
+- ami-c15379f1 Ubuntu 12.04, amd64, instance-store, aki-fc8f11cc
 
 ### Bundling the Instance stored into a new Instance stored AMI
 The [AWS docu]( http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/creating-an-ami-instance-store.htm) 
