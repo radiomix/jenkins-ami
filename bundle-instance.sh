@@ -43,8 +43,11 @@ if [[ $result != yes ]]; then
   return -11
 fi
 
-# AWS S3 Bucket 
-s3_bucket="elemica-jenkinspoc/ami-bundle/$date_fmt"
+# read AWS S3 Bucket from env variable and concat date
+if [[ "$AWS_S3_BUCKET" == "" ]]; then
+    export AWS_S3_BUCKET="elemica-jenkinspoc/ami-bundle/"
+fi
+s3_bucket="$AWS_S3_BUCKET/$date_fmt"
 
 # image file prefix
 prefix="bundle-instance-"$date_fmt
