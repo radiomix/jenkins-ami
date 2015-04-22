@@ -141,12 +141,13 @@ echo "Using AMI manifest:$manifest"
 ######################################
 ## creating ebs volume to be bundle root dev
 output=$(sudo -E $EC2_HOME/bin/ec2-create-volume --size 12 --region $aws_region --availability-zone $aws_avail_zone)
+echo $output
 aws_volume_id=$(echo $output | cut -d ' ' -f 2)
 if [[ "$aws_volume_id" == "" ]]; then
   echo " ERROR: No Aws Volume created!"
   return 42
 fi
-echo -n "AWS-Volume created:$aws_volume_id, waiting to be available"
+echo -n "Using AWS Volume:$aws_volume_id, when available"
 
 ######################################
 ## wait until volume is available
@@ -169,13 +170,15 @@ sudo -E $EC2_HOME/bin/ec2-attach-volume $aws_volume_id -i $aws_instance_id --dev
 ## download and unbundle instance store based AMI
 echo " Downloading manifest $manifest from S3 bucket $s3_bucket"
 sudo -E $EC2_AMITOOL_HOME/bin/ec2-download-bundle -b "$s3_bucket" -m "$manifest"  -a $AWS_ACCESS_KEY -s $AWS_SECRET_KEY --privatekey $AWS_PK_PATH -d $bundle_dir --region $aws_region
+
 cd $bundle_dir
 echo " Unbundling $manifest in $(pwd)"
 sudo -E $EC2_AMITOOL_HOME/bin/ec2-unbundle -m $manifest --privatekey $AWS_PK_PATH 
 
 ######################################
-## copy image to EBS volume
-sudo dd if=$bundle_dir/image of=$aws_ebs_device bs=1M
+## extract image name and copy image to EBS volume
+image=${manifest/.manifest.xml/""}
+sudo dd if=$bundle_dir/$image of=$aws_ebs_device bs=1M
 sudo partprobe $aws_ebs_device
 
 ######################################
@@ -184,32 +187,29 @@ lsblk
 sudo mount $aws_ebs_device $aws_ebs_mount_point
 
 ######################################
-## edit /etc/fstab to remove ephimeral partitions
-ephimeral=$(grep ephimeral /etc/fstab)
+## edit $aws_ebs_mount_point/etc/fstab to remove ephimeral partitions
+ephimeral=$(grep ephimeral $aws_ebs_mount_point/etc/fstab)
 if [[ "$ephimeral" != "" ]]; then
-    echo "Edit /etc/fstab to remove ephimeral partitions"
+    echo "Edit $aws_ebs_mount_point/etc/fstab to remove ephimeral partitions"
     sleep 5
-    sudo vi /etc/fstab
+    sudo vi $aws_ebs_mount_point/etc/fstab
 fi
-
-######################################
-## unmount EBS volume
-sudo umount $aws_ebs_volume
-$EC2_AMITOOL_HOME/bin/ec2-detach-volume $aws_volume_id --region $aws_region
 
 #######################################
 ## create a snapshot and verify it
-output=$($EC2_AMITOOL_HOME/bin/ec2-create-snapshot --region $aws_region -d $aws_snapshot_description -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY $aws_volume_id)
-rest=${output/VOLUME/""}
+echo "Creating Snapshot from Volume:$aws_volume_id. This may take several minutes"
+output=$($EC2_HOME/bin/ec2-create-snapshot $aws_volume_id --region $aws_region -d $aws_snapshot_description -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY )
+rest=${output/SNAPSHOT/""}
 aws_snapshot_id=${rest:0:13}
-echo "Created snapshot:$aws_snapshot_id"
+echo $output
+echo "Using snapshot:$aws_snapshot_id, when completed"
 
 #######################################
 ## wait until snapshot is compleeted
 completed=""
 while [[ "$completed" == "" ]]
 do
-    completed=$($EC2_AMITOOL_HOME/bin/ec2-describe-snapshot --region $aws_region $aws_snapshot_id | grep completed)
+    completed=$($EC2_HOME/bin/ec2-describe-snapshots $aws_snapshot_id --region $aws_region | grep completed)
     echo -n ". "
     sleep 3
 done 
@@ -224,11 +224,18 @@ source select_pvgrub_kernel.sh
 
 #######################################
 ## register a new AMI from the snapshot
-aws_registerd_ami_id=$($EC2_AMITOOL_HOME/bin/ec2-register -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY --region $aws_region -n $aws_ami_name -s $aws_snapshot_id -a $AWS_ARCHITECTURE --kernel $AWS_KERNEL)
- 
+output=$($EC2_HOME/bin/ec2-register -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY --region $aws_region -n $aws_ami_name -s $aws_snapshot_id -a $AWS_ARCHITECTURE --kernel $AWS_KERNEL)
+echo $output
+aws_registerd_ami_id=$(echo $img | cut -d ' ' -f 2)
+echo "Registerd new AMI:$aws_registerd_ami_id"
+
+######################################
+## unmount and detach EBS volume
+sudo umount $aws_ebs_volume
+$EC2_HOME/bin/ec2-detach-volume $aws_volume_id --region $aws_region
 
 #######################################
 ## and delete the volume
 ## ec2-delete-volume $aws_volume_id 
 #######################################
-
+echo "Finished"
