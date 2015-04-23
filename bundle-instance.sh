@@ -207,7 +207,6 @@ start=$SECONDS
 #######################################
 ### this is bundle-work
 ### we write the command string to $log_file and execute it 
-set -x
 sudo -E $EC2_HOME/bin/ec2-version
 sleep 2
 
@@ -226,13 +225,14 @@ sleep 2
 echo "*** Registering images"
 register_command="$EC2_HOME/bin/ec2-register   $s3_bucket/$prefix.manifest.xml $virtual_type -n "$aws_ami_name" -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY --region $aws_region --architecture $aws_architecture "
 echo $register_command >> $log_file
-output=$register_command
+output=$($register_command)
 echo $output
 echo $output >> $log_file
+aws_ami_id=""
 aws_ami_id=$(echo $output | cut -d ' ' -f 2)
 sleep 2
+#######################################
 
-set +x
 
 export AWS_AMI_ID=$aws_ami_id
 export AWS_S3_BUCKER=$s3_bucket
@@ -241,36 +241,23 @@ export AWS_MANIFEST=$prefix.manifest.xml
 ## profiling
 end=$SECONDS
 period=$(($end - $start))
+log_message="
+*** 
+*** PARAMETER USED:
+*** Root device:$root_device
+*** Grub version:$(grub --version)
+*** Bundle folder:$bundle_dir
+*** Block device mapping:$blockDevice
+*** Partition flag:$partition
+*** Virtualization:$virtual_type
+*** S3 Bucket:$s3_bucket
+*** Manifest:$prefix.manifest.xml
+*** Region:$aws_region
+*** Registerd AMI name:$aws_ami_name
+*** Registerd AMI Id:$aws_ami_id 
+*** 
+*** FINISHED Bundling AMI:$current_ami_id  in $period seconds"
 
-echo "*** "
-echo "*** PARAMETER USED:"
-echo "*** Root device:"$root_device
-echo "*** Grub version:"$(grub --version)
-echo "*** Bundle folder:"$bundle_dir
-echo "*** Block device mapping:"$blockDevice
-echo "*** Partition flag:"$partition
-echo "*** Virtualization:"$virtual_type
-echo "*** S3 Bucket:"$s3_bucket
-echo "*** Manifest:"$prefix.manifest.xml
-echo "*** Region:"$aws_region
-echo "*** Registerd AMI name:"$aws_ami_name
-echo "*** Registerd AMI Id:"$aws_ami_id 
-echo "*** "
-echo "*** FINISHED Bundling AMI:$current_ami_id  in $period seconds"
-
-## write parameter to log file
-
-echo "*** "  >> $log_file
-echo "*** PARAMETER USED:"  >> $log_file
-echo "*** Root device:"$root_device  >> $log_file
-echo "*** Grub version:"$(grub --version)  >> $log_file
-echo "*** Bundle folder:"$bundle_dir  >> $log_file
-echo "*** Block device mapping:"$blockDevice  >> $log_file
-echo "*** Partition flag:"$partition   >> $log_file
-echo "*** Virtualization:"$virtual_type  >> $log_file
-echo "*** S3 Bucket:"$s3_bucket  >> $log_file
-echo "*** Manifest:"$prefix.manifest.xml  >> $log_file
-echo "*** Region:"$aws_region  >> $log_file
-echo "*** Registerd AMI name:"$aws_ami_name  >> $log_file
-echo "*** Registerd AMI Id:"$aws_ami_id >> $log_file
-echo "*** FINISHED Bundling AMI:$current_ami_id  in $period seconds" >> $log_file
+## write log message to stdout and to log file
+echo $log_message
+echo $log_message >> $log_file
