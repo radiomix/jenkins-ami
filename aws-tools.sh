@@ -38,14 +38,14 @@ aws_architecture=$AWS_ARCHITECTURE
 
 ######################################
 ## packages needed anyways
-echo "*** Installing packages 'ruby unzip wget openssl'"
-sudo apt-get -q update
-sudo apt-get -q install -y --force-yes ruby unzip wget openssl
+#echo "*** Installing packages 'ruby unzip wget openssl'"
+#sudo apt-get -q update
+#sudo apt-get -q install -y --force-yes ruby unzip wget openssl
 ## we experienced curl SSL errors as in
 ## http://tiku.io/questions/3051603/amazon-ec2-s3-self-signed-certificate-ssl-failure-when-using-ec2-upload-bundle
 ## so we reload the root certificates
 ## Peter comment out
-sudo update-ca-certificates
+#sudo update-ca-certificates
 
 ######################################
 ## install api/ami tools under /usr/local/ec2
