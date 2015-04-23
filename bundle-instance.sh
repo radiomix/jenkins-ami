@@ -192,21 +192,22 @@ else
 fi
 
 #######################################
+ec2_version=$(sudo -E $EC2_HOME/bin/ec2-version)
 log_message="
-*** Using partition:$partition \n
-*** Using virtual_type:$virtual_type \n
-*** Using block_device:$blockDevice \n
-*** Using s3_bucket:$s3_bucket"
+*** Using partition:$partition 
+*** Using virtual_type:$virtual_type
+*** Using block_device:$blockDevice
+*** Using s3_bucket:$s3_bucket
+*** Using EC2 version:$ec2-version"
 ## write output to log file
-echo -e $log_message
-echo -e $log_message >> $log_file
+echo  "$log_message"
+echo  "$log_message" >> $log_file
 sleep 5
 start=$SECONDS
 
 #######################################
 ### this is bundle-work
 ### we write the command string to $log_file and execute it 
-sudo -E $EC2_HOME/bin/ec2-version
 sleep 2
 
 echo "*** Bundleing AMI, this may take several minutes "
@@ -258,5 +259,5 @@ log_message="
 *** FINISHED Bundling AMI:$current_ami_id  in $period seconds"
 
 ## write log message to stdout and to log file
-echo -e $log_message
-echo -e $log_message >> $log_file
+echo "$log_message"
+echo "$log_message" >> $log_file
