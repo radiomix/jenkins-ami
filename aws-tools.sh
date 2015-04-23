@@ -39,13 +39,13 @@ aws_architecture=$AWS_ARCHITECTURE
 ######################################
 ## packages needed anyways
 echo "*** Installing packages 'ruby unzip wget openssl'"
-# sudo apt-get -q update
-# sudo apt-get -q install -y --force-yes ruby unzip wget openssl
+sudo apt-get -q update
+sudo apt-get -q install -y --force-yes ruby unzip wget openssl
 ## we experienced curl SSL errors as in
 ## http://tiku.io/questions/3051603/amazon-ec2-s3-self-signed-certificate-ssl-failure-when-using-ec2-upload-bundle
 ## so we reload the root certificates
 ## Peter comment out
-# sudo update-ca-certificates
+sudo update-ca-certificates
 
 ######################################
 ## install api/ami tools under /usr/local/ec2
@@ -164,24 +164,24 @@ fi
 if [[ "$AWS_CERT_PATH" == "" ]]
 then
   echo -n "Enter /path/to/x509-cert.pem: "
-  read awsCertPath
-  if [ ! -f "$awsCertPath"  ]; then
-        echo "*** ERROR: AWS X509 CERT FILE NOT FOUND IN:$awsCertPath"
+  read aws_cert_path
+  if [ ! -f "$aws_cert_path"  ]; then
+        echo "*** ERROR: AWS X509 CERT FILE NOT FOUND IN:$aws_cert_path"
         exit -1
   fi
-  export AWS_CERT_PATH=$awsCertPath
+  export AWS_CERT_PATH=$aws_cert_path
 fi
 
 if [[ "$AWS_PK_PATH" == "" ]]
 then
   echo -n "Enter /path/to/x509-pk.pem: "
-  read awsPkPath
-  if [  ! -f "$awsPkPath" ]; then
-        echo "*** ERROR: AWS X509 PK FILE NOT FOUND IN:$awsPkPath"
+  read aws_pk_path
+  if [  ! -f "$aws_pk_path" ]; then
+        echo "*** ERROR: AWS X509 PK FILE NOT FOUND IN:$aws_pk_path"
         exit -1
   fi
 fi
-export AWS_PK_PATH=$awsPkPath
+export AWS_PK_PATH=$aws_pk_path
 
 echo "*** Using x509-cert.pem \"$AWS_CERT_PATH\""
 echo "*** Using x509-pk.pem \"$AWS_PK_PATH\""
