@@ -11,11 +11,13 @@
 #       export AWS_ACCESS_KEY=your_access_key_id
 #       export AWS_SECRET_KEY=your_secret_access_key
 #   - we need the instance ID we want to convert $as aws_instance_id
+#
 #   - some commands need sudo rights
 #
 
 #######################################
 ## config variables
+cwd=$(pwd)
 
 # bundle directory
 bundle_dir="/tmp/bundle"
@@ -25,12 +27,12 @@ fi
 # check if writable
 result=$(sudo test -w $bundle_dir && echo yes)
 if [[ $result != yes ]]; then
-  echo " ERROR: directory $bundle_dir to bundle the image is not writable!! "
+  echo "*** ERROR: directory $bundle_dir to bundle the image is not writable!! "
   return -11
 fi
 
 # check ec2 tools
-echo "Using AMI tools "$(sudo -E $EC2_HOME/bin/ec2-version)
+echo "*** Using AMI tools "$(sudo -E $EC2_HOME/bin/ec2-version)
 
 # access key from env variable, needed for authentification
 aws_access_key=$AWS_ACCESS_KEY
@@ -38,7 +40,8 @@ aws_access_key=$AWS_ACCESS_KEY
 # secrete key from env variable, needed for authentification
 aws_secret_key=$AWS_SECRET_KEY
 
-# device and mountpoint of the new volume; we put our new AMI onto this device(aws_volume)
+# device and mountpoint of the new volume; 
+# we put our new AMI onto this device(aws_volume)
 aws_ebs_device=/dev/xvdi
 lsblk
 echo -n "If $aws_ebs_device is not listed, type <ENTERY>, add letters to /dev/xvd"
@@ -46,8 +49,7 @@ read letter
 if [[ "$letter" != "" ]]; then
     aws_ebs_device=/dev/xvd$letter
 fi
-echo "Using device:$aws_ebs_device"
-
+echo "*** Using device:$aws_ebs_device"
 
 aws_ebs_mount_point=/mnt/ebs
 if [[ ! -d $aws_ebs_mount_point ]]; then
@@ -55,7 +57,7 @@ if [[ ! -d $aws_ebs_mount_point ]]; then
 fi
 result=$(sudo test -w $aws_ebs_mount_point && echo yes)
 if [[ $result != yes ]]; then
-  echo " ERROR: directory $aws_ebs_mount_point to mount the image is not writable!! "
+  echo "***  ERROR: directory $aws_ebs_mount_point to mount the image is not writable!! "
   return -12
 fi
 
@@ -68,26 +70,26 @@ aws_instance_id=$(curl -s http://169.254.169.254/latest/meta-data/instance-id/)
 # region
 aws_region=$AWS_REGION
 if [[ "$aws_region" == "" ]]; then
-  echo " ERROR: No AWS_REGION given!! "
+  echo "***  ERROR: No AWS_REGION given!! "
   return -2
 fi
-echo "Using region: $aws_region"
+echo "*** Using region: $aws_region"
 
 # architecture
 aws_architecture=$AWS_ARCHITECTURE
 if [[ "$aws_architecture" == "" ]]; then
-  echo " ERROR: No AWS_ARCHITECTURE given!! "
+  echo "*** ERROR: No AWS_ARCHITECTURE given!! "
   return -3
 fi
-echo "Using: architechture: $aws_architecture"
+echo "*** Using: architechture: $aws_architecture"
 
 # x509 cert/pk file
 if [[ "$AWS_PK_PATH" == "" ]]; then
-  echo " ERROR: X509 private key file \"$AWS_PK_PATH\" not found!! "
+  echo "*** ERROR: X509 private key file \"$AWS_PK_PATH\" not found!! "
   return -21
 fi
 if [[ "$AWS_CERT_PATH" == "" ]]; then
-  echo " ERROR: X509 cert key file \"$AWS_CERT_PATH\" not found!! "
+  echo "*** ERROR: X509 cert key file \"$AWS_CERT_PATH\" not found!! "
   return -22
 fi
 
@@ -97,17 +99,17 @@ if [[ "$aws_ami_id" == "" ]]; then
   echo -n "Please type in the AMI Id to be copied:"
   read aws_ami_id
   if [[ "$aws_ami_id" == "" ]]; then
-  	echo " ERROR: No AWS_AMI_ID given!! "
+  	echo "*** ERROR: No AWS_AMI_ID given!! "
   	return -31
   fi
   aws_ami_description=$(sudo -E $EC2_HOME/bin/ec2-describe-images --region $aws_region $aws_ami_id)
   if [[ "$aws_ami_description" == "" ]]; then
-  	echo " ERROR: Could not find AMI $aws_ami_id "
+  	echo "*** ERROR: Could not find AMI $aws_ami_id "
   	return -32
   fi
 fi
 export AWS_AMI_ID=$aws_ami_id
-echo "Using AMI id :$aws_ami_id"
+echo "*** Using AMI id :$aws_ami_id"
 
 # descriptions
 aws_snapshot_description="AMI snapshot of "$aws_ami_id", to be deleted after completion"
@@ -123,7 +125,7 @@ if [[ "$s3_bucket" == "" ]]; then
   read s3_bucket
 fi
 export AWS_S3_BUCKET=$s3_bucket
-echo "Using AWS S3 bucket:$s3_bucket"
+echo "*** Using AWS S3 bucket:$s3_bucket"
 
 ## manifest of the bundled AMI
 manifest=$AWS_MANIFEST
@@ -132,30 +134,31 @@ if [[ "$manifest" == "" ]]; then
   read manifest
 fi
 export AWS_MANIFEST=$manifest
-echo "Using AMI manifest:$manifest"
+echo "*** Using AMI manifest:$manifest"
 
-#######################################
-## get processor architecture, virtualization type, and the kernel image (aki) 
-## we might not get the proper description from the base image, if it was bundled
-## without a description 
-#command=$($EC2_AMITOOL_HOME/bin/ec2-describe-images --region $aws_region $aws_ami_id)
-## but we can select a proper kernel for our region.
+## get the kernel image (aki) 
 source select_pvgrub_kernel.sh
-echo "Using kernel:$AWS_KERNEL"
+echo "*** Using kernel:$AWS_KERNEL"
 
+## install pv (pipe viewer)
+sudo apt-get install -y pv
+
+# our AWS Instance ID
+current_ami_id=$(curl -s http://169.254.169.254/latest/meta-data/ami-id) 
+current_instance_id=$(curl -s http://169.254.169.254/latest/meta-data/instance-id) 
 
 ## config variables
-
 ######################################
 ## creating ebs volume to be bundle root dev
-#output=$(sudo -E $EC2_HOME/bin/ec2-create-volume --size 12 --region $aws_region --availability-zone $aws_avail_zone)
-#echo $output
+echo "*** Creating EBS Volume"
+output=$(sudo -E $EC2_HOME/bin/ec2-create-volume --size 12 --region $aws_region --availability-zone $aws_avail_zone)
+echo $output
 aws_volume_id=$(echo $output | cut -d ' ' -f 2)
 if [[ "$aws_volume_id" == "" ]]; then
-  echo " ERROR: No Aws Volume created!"
+  echo "*** ERROR: No Aws Volume created!"
   return 42
 fi
-echo -n "Using AWS Volume:$aws_volume_id, when available"
+echo -n "*** Using AWS Volume:$aws_volume_id. Waiting to become ready . "
 
 ######################################
 ## wait until volume is available
@@ -167,51 +170,65 @@ do
     sleep 1
 done
 echo ""
-lsblk
+$EC2_HOME/bin/ec2-create-tags $aws_volume_id  --region $aws_region --tag Name="EBS Vol: $aws_snapshot_description"
 
-
-######################################
+#######################################
 ## attach volume
-sudo -E $EC2_HOME/bin/ec2-attach-volume $aws_volume_id -i $aws_instance_id --device $aws_ebs_device --region $aws_region
+echo "*** Attaching EBS Volume:$aws_volume_id"
+sudo -E $EC2_HOME/bin/ec2-attach-volume $aws_volume_id -instance $current_instance_id --device $aws_ebs_device --region $aws_region
+output=""
+while [[ "$output" == "" ]]
+do
+    output=$($EC2_HOME/bin/ec2-describe-volumes --region $aws_region $aws_volume_id | grep attached)
+    echo -n " ."
+    sleep 1
+done
+echo ""
+lsblk
+sleep 2
 
-######################################
-## download and unbundle instance store based AMI
-echo " Downloading manifest $manifest from S3 bucket $s3_bucket"
+#######################################
+### download and unbundle instance store based AMI
+echo "*** Downloading manifest $manifest from S3 bucket $s3_bucket"
 sudo -E $EC2_AMITOOL_HOME/bin/ec2-download-bundle -b "$s3_bucket" -m "$manifest"  -a $AWS_ACCESS_KEY -s $AWS_SECRET_KEY --privatekey $AWS_PK_PATH -d $bundle_dir --region $aws_region
 
 cd $bundle_dir
-echo " Unbundling $manifest in $(pwd)"
+echo "*** Unbundling $manifest in $(pwd)"
 sudo -E $EC2_AMITOOL_HOME/bin/ec2-unbundle -m $manifest --privatekey $AWS_PK_PATH 
-
+sleep 2
 ######################################
 ## extract image name and copy image to EBS volume
 image=${manifest/.manifest.xml/""}
-echo "Copying $bundle_dir/$image to $aws_ebs_device. This may take several minutes!"
+size=$(du -sb $bundle_dir/$image | cut -f 1)
+echo "*** Copying $bundle_dir/$image of size $size to $aws_ebs_device."
+echo "***  This may take several minutes!"
+#sudo dd if=$bundle_dir/$image | pv -s $size | sudo dd of=$aws_ebs_device bs=1M
 sudo dd if=$bundle_dir/$image of=$aws_ebs_device bs=1M
-echo "Checking partition $aws_ebs_device"
+echo "*** Checking partition $aws_ebs_device"
 sudo partprobe $aws_ebs_device
 
 ######################################
-## list block devices and mount EBS volume
-lsblk
-sudo mount $aws_ebs_device $aws_ebs_mount_point
-
-######################################
-## edit $aws_ebs_mount_point/etc/fstab to remove ephimeral partitions
+## check /etc/fstab on EBS volume
+## mount EBS volume
+sudo mount -o rw $aws_ebs_device $aws_ebs_mount_point
+## edit /etc/fstab to remove ephimeral partitions
 ephimeral=$(grep ephimeral $aws_ebs_mount_point/etc/fstab)
 if [[ "$ephimeral" != "" ]]; then
     echo "Edit $aws_ebs_mount_point/etc/fstab to remove ephimeral partitions"
     sleep 5
     sudo vi $aws_ebs_mount_point/etc/fstab
 fi
+# unmount EBS volume
+sudo umount $aws_ebs_device
 
 #######################################
 ## create a snapshot and verify it
-echo "Creating Snapshot from Volume:$aws_volume_id. This may take several minutes"
+echo "*** Creating Snapshot from Volume:$aws_volume_id."
+echo "*** This may take several minutes"
 output=$($EC2_HOME/bin/ec2-create-snapshot $aws_volume_id --region $aws_region -d "$aws_snapshot_description" -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY )
 aws_snapshot_id=$(echo $output | cut -d ' ' -f 2)
 echo $output
-echo -n "Using snapshot:$aws_snapshot_id, when completed"
+echo -n "*** Using snapshot:$aws_snapshot_id. Waiting to become ready . "
 
 #######################################
 ## wait until snapshot is compleeted
@@ -229,15 +246,19 @@ echo ""
 output=$($EC2_HOME/bin/ec2-register -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY --region $aws_region -n "$aws_ami_name" -s $aws_snapshot_id -a $AWS_ARCHITECTURE --kernel $AWS_KERNEL)
 echo $output
 aws_registerd_ami_id=$(echo $output | cut -d ' ' -f 2)
-echo "Registerd new AMI:$aws_registerd_ami_id"
+echo "*** Registerd new AMI:$aws_registerd_ami_id"
 
 ######################################
 ## unmount and detach EBS volume
-sudo umount $aws_ebs_device
-$EC2_HOME/bin/ec2-detach-volume $aws_volume_id --region $aws_region
+echo "*** Detaching EBS Volume:$aws_volume_id"
+$EC2_HOME/bin/ec2-detach-volume $aws_volume_id --region $aws_region -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY
 
 #######################################
-## and delete the volume
-## ec2-delete-volume $aws_volume_id 
+## and delete the volume and remove bundle-files
+echo "*** Please delete EBS Volume:$aws_volume_id"
+#$EC2_HOME/bin/ec2-delete-volume $aws_volume_id  -O $AWS_ACCESS_KEY -W $AWS_SECRET_KEY
+echo "*** Deleting EBS Volume:$aws_volume_id"
+sudo rm -rf $bundle_dir/*
 #######################################
-echo "Finished! Created AMI:$aws_registerd_ami_id"
+cd $cwd
+echo "*** Finished! Created AMI: $aws_registerd_ami_id ***"
