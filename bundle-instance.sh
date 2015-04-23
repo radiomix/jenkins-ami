@@ -241,21 +241,20 @@ export AWS_MANIFEST=$prefix.manifest.xml
 ## profiling
 end=$SECONDS
 period=$(($end - $start))
-log_message="
-*** \n 
-*** PARAMETER USED: \n
-*** Root device:$root_device \n
-*** Grub version:$(grub --version) \n
-*** Bundle folder:$bundle_dir \n
-*** Block device mapping:$blockDevice \n
-*** Partition flag:$partition \n
-*** Virtualization:$virtual_type \n
-*** S3 Bucket:$s3_bucket \n
-*** Manifest:$prefix.manifest.xml \n
-*** Region:$aws_region \n
-*** Registerd AMI name:$aws_ami_name \n
-*** Registerd AMI Id:$aws_ami_id \n
-*** \n
+log_message="***  
+*** PARAMETER USED:
+*** Root device:$root_device
+*** Grub version:$(grub --version)
+*** Bundle folder:$bundle_dir
+*** Block device mapping:$blockDevice
+*** Partition flag:$partition
+*** Virtualization:$virtual_type
+*** S3 Bucket:$s3_bucket
+*** Manifest:$prefix.manifest.xml
+*** Region:$aws_region
+*** Registerd AMI name:$aws_ami_name
+*** Registerd AMI Id:$aws_ami_id
+***
 *** FINISHED Bundling AMI:$current_ami_id  in $period seconds"
 
 ## write log message to stdout and to log file
