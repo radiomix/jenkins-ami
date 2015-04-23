@@ -192,16 +192,14 @@ else
 fi
 
 #######################################
-echo "*** Using partition:     $partition"
-echo "*** Using virtual_type:  $virtual_type"
-echo "*** Using block_device:  $blockDevice"
-echo "*** Using s3_bucket:     $s3_bucket"
-## write parameter to log file
-echo "*** Using partition:     $partition" >> $log_file
-echo "*** Using virtual_type:  $virtual_type"  >> $log_file
-echo "*** Using block_device:  $blockDevice"  >> $log_file
-echo "*** Using s3_bucket:     $s3_bucket"  >> $log_file
-echo "***"  >> $log_file
+log_message="
+*** Using partition:$partition \n
+*** Using virtual_type:$virtual_type \n
+*** Using block_device:$blockDevice \n
+*** Using s3_bucket:$s3_bucket"
+## write output to log file
+echo -e $log_message
+echo -e $log_message >> $log_file
 sleep 5
 start=$SECONDS
 
@@ -243,22 +241,22 @@ export AWS_MANIFEST=$prefix.manifest.xml
 end=$SECONDS
 period=$(($end - $start))
 log_message="
-*** 
-*** PARAMETER USED:
-*** Root device:$root_device
-*** Grub version:$(grub --version)
-*** Bundle folder:$bundle_dir
-*** Block device mapping:$blockDevice
-*** Partition flag:$partition
-*** Virtualization:$virtual_type
-*** S3 Bucket:$s3_bucket
-*** Manifest:$prefix.manifest.xml
-*** Region:$aws_region
-*** Registerd AMI name:$aws_ami_name
-*** Registerd AMI Id:$aws_ami_id 
-*** 
+*** \n 
+*** PARAMETER USED: \n
+*** Root device:$root_device \n
+*** Grub version:$(grub --version) \n
+*** Bundle folder:$bundle_dir \n
+*** Block device mapping:$blockDevice \n
+*** Partition flag:$partition \n
+*** Virtualization:$virtual_type \n
+*** S3 Bucket:$s3_bucket \n
+*** Manifest:$prefix.manifest.xml \n
+*** Region:$aws_region \n
+*** Registerd AMI name:$aws_ami_name \n
+*** Registerd AMI Id:$aws_ami_id \n
+*** \n
 *** FINISHED Bundling AMI:$current_ami_id  in $period seconds"
 
 ## write log message to stdout and to log file
-echo $log_message
-echo $log_message >> $log_file
+echo -e $log_message
+echo -e $log_message >> $log_file
