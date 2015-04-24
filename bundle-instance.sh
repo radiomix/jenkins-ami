@@ -259,7 +259,7 @@ log_message="***
 *** Registerd AMI name:$aws_ami_name
 *** Registerd AMI Id:$aws_ami_id
 ***
-*** FINISHED Bundling AMI:$current_ami_id  in $period seconds"
+*** FINISHED Bundling AMI:$current_ami_id  into new AMI:$aws_ami_id in $period seconds"
 
 ## write log message to stdout and to log file
 echo "$log_message"
