@@ -165,4 +165,10 @@ docker run -p 8080:8080 jenkins:
 #### Issues 
  - If `ec2-bundle-vol` throws error `ec2/amitools/crypto.rb:13:in
  'require': no such file to load -- openssl (LoadError)`, install package 'ruby-full'.
+ - If `ec2-upload-bundle` throws error `Signature version 4
+   authentication failed, trying different signature version
+ERROR: Error talking to S3: Server.NotImplemented(501): A header you
+provided implies functionality that is not implemented
+` we are not allowed to write to the AWS S3 bucket. Chek S3 Bucket
+settings in `bundle-instance.sh`.
  - On Ubuntu EOL(10.10, . . .), required packages can not be installed.

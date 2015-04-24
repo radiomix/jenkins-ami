@@ -44,11 +44,16 @@ if [[ $result != yes ]]; then
 fi
 
 # read AWS S3 Bucket from env variable and concat date
-if [[ "$AWS_S3_BUCKET" == "" ]]; then
-    export AWS_S3_BUCKET="elemica-jenkinspoc/ami-bundle/"
+s3_bucket="elemica-jenkinspoc/ami-bundle/$date_fmt"
+echo -n "Type in your AWS_S3_BUCKET or <ENTER> for \"$s3_bucket\""
+read input
+if  [[ "$input" == "" ]]; then
+    export AWS_S3_BUCKET="$s3_bucket"
+else
+    export AWS_S3_BUCKET="$input"
 fi
 ## TODO check for double slahes!
-s3_bucket="$AWS_S3_BUCKET$date_fmt"
+s3_bucket="$AWS_S3_BUCKET"
 
 # image file prefix
 prefix="bundle-instance-"$date_fmt
