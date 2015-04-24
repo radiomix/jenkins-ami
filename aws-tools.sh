@@ -75,7 +75,7 @@ java_bin=$(which java)
 #        java_bin=$(which java)
 #    else 
 #        echo "***  ERROR: No Java version found! EXIT!"
-#        exit -11
+#        return [-11]
 #    fi
 #fi
 java_path=$(readlink -f $java_bin)
@@ -167,7 +167,7 @@ then
   read aws_cert_path
   if [ ! -f "$aws_cert_path"  ]; then
         echo "*** ERROR: AWS X509 CERT FILE NOT FOUND IN:$aws_cert_path"
-        exit -1
+        return [-1]
   fi
   export AWS_CERT_PATH=$aws_cert_path
 fi
@@ -178,7 +178,7 @@ then
   read aws_pk_path
   if [  ! -f "$aws_pk_path" ]; then
         echo "*** ERROR: AWS X509 PK FILE NOT FOUND IN:$aws_pk_path"
-        exit -1
+        return [-1]
   fi
 fi
 export AWS_PK_PATH=$aws_pk_path
