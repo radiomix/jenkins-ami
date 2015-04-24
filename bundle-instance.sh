@@ -141,7 +141,7 @@ read edit
 if  [[ "$edit" == "y" ]]; then
   sudo vi /boot/grub/menu.lst
 fi
-sudo grub-install
+sudo update-grub -y
 
 #######################################
 ### remove evi entries in /etc/fstab if exist
