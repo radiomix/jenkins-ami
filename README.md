@@ -75,12 +75,14 @@ stopped and restarted:
  + erlang process `epmd` by hand
 
 ### Usage
-Run the two shell scripts with a period in this orde:
+#### Bundling an Instance backed AMI
+To bundle and register an Instance backed AMI, run the two shell scripts:
 ```
-$source  aws-tools.sh
+$source aws-tools.sh
 $source bundle_intance.sh
 ```
-
+Save the log file `bundle-2015-04-24-10-37-19.log` to remeber AWS
+parameters. 
 We recommend the following parameter during a `bundle_instance.sh` run:
 
 **virtualization type `paravirtual`**
@@ -91,6 +93,16 @@ We recommend the following parameter during a `bundle_instance.sh` run:
  * _Is virtualization type:hvm correct?_ **YES**
  * _`--block-device-mapping`_  **YES**
  * _Select root device [xvda|sda] in device mapping_ **SDA**
+
+#### Convert an Instance backed AMI into an EBS backed AMI
+To unbundle the Instance backed AMI and register an EBS backed AMI, you need
+the log file containing the AWS paramter of the previous run at hand.
+Then run the two shell scripts:
+```
+$source aws-tools.sh
+$source convert-instance-to-ebs.sh
+```
+
 
 ## AMIs
 
