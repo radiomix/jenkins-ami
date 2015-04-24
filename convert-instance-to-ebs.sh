@@ -44,7 +44,8 @@ aws_secret_key=$AWS_SECRET_KEY
 # we put our new AMI onto this device(aws_volume)
 aws_ebs_device=/dev/xvdi
 lsblk
-echo -n "If $aws_ebs_device is not listed, type <ENTERY>, add letters to /dev/xvd"
+echo    "Chose device to mount EBS volume. If $aws_ebs_device is not listed, type <ENTER>"
+echo -n "Else add letters to /dev/xvd"
 read letter
 if [[ "$letter" != "" ]]; then
     aws_ebs_device=/dev/xvd$letter
@@ -112,7 +113,7 @@ export AWS_AMI_ID=$aws_ami_id
 echo "*** Using AMI id :$aws_ami_id"
 
 # descriptions
-aws_snapshot_description="AMI snapshot of "$aws_ami_id", to be deleted after completion"
+aws_snapshot_description="EBS Snapshot of "$aws_ami_id", delete after registering new EBS AMI"
 date=$(date)
 aws_ami_name="Ubuntu-LTS-12.04-Jenkins-Server-$(date '+%F-%H-%M-%S')"
 
