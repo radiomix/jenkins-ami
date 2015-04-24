@@ -19,6 +19,12 @@ asks to install `default-jre`, exports env variables for AWS credentials.
   - check the proper virtualization type with `curl -s http://169.254.169.254/latest/meta-data/profile/ | grep "default-"` 
 returning [default-paravirtual|default-hvm] and set bundle parameters
   - bundles and uploads the image and registers an AMI
+ + [`convert-instance-to-ebs.sh`](convert-instance-to-ebs.sh)
+  - checks for AWS environment variables
+  - creates and attaches an EBS volume
+  - dowloads and unbundles the previous manifest
+  - creates a snapshot and registers an AMI
+  - unmounts and dettaches the EBS volume
 
 ### Prerequisites
 -------------
