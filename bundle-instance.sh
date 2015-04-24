@@ -96,7 +96,7 @@ touch $log_file
 
 # AMI id we are bundling (This one!)
 current_ami_id=$(curl -s http://169.254.169.254/latest/meta-data/ami-id) 
-output=$($EC2_AMITOOL_HOME/bin/ec2-describe-images --region $aws_region $current_ami_id)
+output=$($EC2_HOME/bin/ec2-describe-images --region $aws_region $current_ami_id)
 
 ## end config variables
 ######################################
@@ -202,7 +202,7 @@ log_message="
 *** Using virtual_type:$virtual_type
 *** Using block_device:$blockDevice
 *** Using s3_bucket:$s3_bucket
-*** Using EC2 version:$ec2-version"
+*** Using EC2 version:$ec2_version"
 ## write output to log file
 echo  "$log_message"
 echo  "$log_message" >> $log_file
