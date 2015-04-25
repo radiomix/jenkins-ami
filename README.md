@@ -18,18 +18,16 @@ us-west-2
 The approach is slightly adapted from [Building Ubuntu 12.04 and 14.04
 HVM Instance Store AMIs](https://github.com/Lumida/
 packer/wiki/Building-Ubuntu-12.04-and-14.04-HVM-Instance-Store-AMIs).
- + [`instance-12.04.json`](instance-12.04.json)  Backes AWS tools 
-needed by the Instance stored AMI to be registerd as an Ubuntu 12.04
+All AMIs are Instance Stored.
+ + [`instance-12.04.json`](instance-12.04.json) backes an AMI with AWS tools 
+on an instance stored AMI under Ubuntu 12.04
 AMI.
- + [`instance-14.04.json`](instance-14.04.json)  Backes AWS tools 
-needed by the Instance stored AMI to be registerd as an Ubuntu 14.04
-AMI.
- + [`jenkins-12.04.json`](jenkins-12.04.json) This packer file bakes 
-an Instance-stored AMI with jenkins installed on Ubuntu 12.04, serving 
-as a test candidate to be transformed into a EBS-Backed AMI.
- + [`jenkins-14.04.json`](jenkins-14.04.json) This packer file bakes 
-an Instance-stored AMI with jenkins installed on Ubuntu 14.04, serving
- as a test candidate to be transformed into a EBS-Backed AMI.
+ + [`instance-14.04.json`](instance-14.04.json) backes an AMI AWS tools 
+on an instance stored AMI under Ubuntu 14.04 AMI.
+ + [`jenkins-12.04.json`](jenkins-12.04.json) bakes 
+an AMI with jenkins installed under Ubuntu 12.04
+ + [`jenkins-14.04.json`](jenkins-14.04.json) bakes 
+an AMI with jenkins installed under Ubuntu 14.04
 
 ### Install Files
  + [`setup_ubuntu_hvm_instance_store_images.sh`](setup_ubuntu_hvm_instance_store_images.sh) 
