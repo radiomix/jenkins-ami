@@ -46,3 +46,6 @@ We install these tools on jenkins AMIs:
  + packer, chef
  + default-jre (jdk 6 or 7)
 
+## How to copy an Instance backed AMI into an EBS backed AMI
+Please visit
+[instance-to-ebs](https://github.com/radiomix/instance-to-ebs)
