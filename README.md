@@ -1,4 +1,4 @@
-### jenkins-ami
+## jenkins-ami
 Install Jenkins via `packer`
 
 
