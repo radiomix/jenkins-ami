@@ -46,15 +46,3 @@ We install these tools on jenkins AMIs:
  + packer, chef
  + default-jre (jdk 6 or 7)
 
-The Instance stored AMI
------------------------
-
-### Installing Jenkins on an Instance stored AMI
-Packer file [`jenkins-12.04.json`](jenkins-12.04.json) backes 
-an Instance stored AMI, as a playground.
-
-### Running Jenkins as a Docker Container
-To pull the docker containers 'jenkins' and run it:
-```
-docker run -p 8080:8080 jenkins:
-```
