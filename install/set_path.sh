@@ -1,5 +1,6 @@
 #!/bin/bash
 #
-# set the go path on profile level
+# set the path on profile level
 # 
 echo 'PATH="$PATH:/usr/local/go/bin"' >> /etc/profile
+echo 'PATH="$PATH:/usr/local/bin"' >> /etc/profile
