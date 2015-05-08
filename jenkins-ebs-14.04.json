@@ -1,0 +1,41 @@
+{
+  "variables":{
+    "aws_access_key":"",
+    "aws_secret_key":"",
+    "security_group_id":"sg-e6908584"
+  },
+  "builders":[
+    {
+      "name": "Ubuntu-14.04-Jenkins-EBS",
+      "type":"amazon-ebs",
+      "access_key":"{{user `aws_access_key`}}",
+      "secret_key":"{{user `aws_secret_key`}}",
+      "region":"us-west-2",
+      "source_ami":"ami-3189b801",
+      "instance_type":"m3.xlarge",
+      "ssh_username":"ubuntu",
+      "ami_virtualization_type": "paravirtual",
+      "ami_name":"14.04-jenkins-ebs-{{isotime | clean_ami_name}}",
+      "security_group_id":"",
+      "tags": {
+        "Name": "14.04-Jenkins (EBS paravirtual)-{{isotime | clean_ami_name}}"
+      }
+    }
+  ],
+  "provisioners":[
+    {
+      "type":"shell",
+           "execute_command": "echo 'ubuntu' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'",
+           "scripts":[
+               "install/tools.sh",
+               "install/ec2-tools.sh",
+               "install/rabitmq.sh",
+               "install/nodes.sh",
+               "install/jenkins.sh",
+               "install/chefdk.sh",
+               "install/redis.sh"
+          ]
+      }
+ ]
+}
+
