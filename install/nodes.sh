@@ -5,4 +5,4 @@
 
 echo "***INSTALLING nodes.js"
 curl -sL https://deb.nodesource.com/setup | sudo bash -
-sudo apt-get install nodejs
+sudo apt-get install -y nodejs
