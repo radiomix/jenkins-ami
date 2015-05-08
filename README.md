@@ -6,7 +6,7 @@ Install Jenkins via `packer`
 
 As source AMIs we use Ubuntu 14.04 LTS Server x86_64 EBS-SSD AMI region
 us-west-2 
- + [ubuntu-trusty-14.04-amd64](http://cloud-images.ubuntu.com/locator/ec2/) 
+ + [ubuntu-trusty-14.04-amd64 (ami-3189b801)](http://cloud-images.ubuntu.com/locator/ec2/) 
 
 ###Usage
 
