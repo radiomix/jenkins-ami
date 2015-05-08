@@ -18,7 +18,7 @@
       "ami_name":"14.04-jenkins-ebs-{{isotime | clean_ami_name}}",
       "security_group_id":"",
       "tags": {
-        "Name": "14.04-Jenkins (EBS paravirtual)-{{isotime | clean_ami_name}}"
+        "Name": "14.04-Jenkins BASE (EBS paravirtual)-{{isotime | clean_ami_name}}"
       }
     }
   ],
@@ -28,12 +28,12 @@
            "execute_command": "echo 'ubuntu' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'",
            "scripts":[
                "install/tools.sh",
+               "install/redis.sh",
                "install/ec2-tools.sh",
                "install/rabitmq.sh",
                "install/nodes.sh",
                "install/jenkins.sh",
-               "install/chefdk.sh",
-               "install/redis.sh"
+               "install/chefdk.sh"
           ]
       }
  ]
