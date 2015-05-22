@@ -15,7 +15,7 @@
       "instance_type":"m3.xlarge",
       "ssh_username":"ubuntu",
       "ami_virtualization_type": "paravirtual",
-      "ami_name":"14.04-jenkins-ebs-{{isotime | clean_ami_name}}",
+      "ami_name":"14.04-jenkins-etcd-ebs-{{isotime | clean_ami_name}}",
       "security_group_id":"",
       "tags": {
         "Name": "14.04-Jenkins BASE + etcd (EBS paravirtual)-{{isotime | clean_ami_name}}"
