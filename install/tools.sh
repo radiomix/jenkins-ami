@@ -2,10 +2,10 @@
 #
 # install tools needed for redis, jenkins, rabitmq
 #
-echo ***INSTALLING TOOL
+echo ***INSTALLING TOOLS
 sleep 2
 sudo apt-get update
-sudo apt-get install -y --force-yes curl wget git mosh gcc make lynx unzip docker.io build-essential phyton golang
+sudo apt-get install -y --force-yes curl wget git mosh gcc make lynx unzip docker.io build-essential python golang
 which lynx mosh git vi wget unzip docker
 echo ***INSTALLING JAVA 
 sleep 2
