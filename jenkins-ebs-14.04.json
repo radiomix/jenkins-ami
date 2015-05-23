@@ -23,7 +23,17 @@
     }
   ],
   "provisioners":[
-    {
+      {
+          "type": "file",
+            "source": "file/etcd.default",
+            "destination": "/tmp/etcd.default"
+      },
+      {
+          "type": "file",
+            "source": "file/etcd.init",
+            "destination": "/tmp/etcd.init"
+      },
+      { 
       "type":"shell",
            "execute_command": "echo 'ubuntu' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'",
            "scripts":[

@@ -14,16 +14,14 @@ sudo ln -v -s /usr/local/etcd-$version-linux-amd64/etcd /usr/local/bin
 sudo ln -v -s /usr/local/etcd-$version-linux-amd64/etcdctl /usr/local/bin/
 
 # copy default/init script to the right place
-sudo mv /tmp/etcd.init /etc/init.d/etcd
+sudo mv -v /tmp/etcd.init /etc/init.d/etcd
 sudo chown root.root /etc/init.d/etcd
-sudo mv /tmp/etcd.default /etc/default/etcd
+sudo chmod a+x /etc/init.d/etcd
+sudo mv -v /tmp/etcd.default /etc/default/etcd
 sudo chown root.root /etc/default/etcd
 
-# link start/stop scripts
-cd /etc/rc5.d/
-sudo ln -v -s ../init.d/etcd S19etcd
-cd /etc/rc2.d/
-sudo ln -v -s ../init.d/etcd S19etcd
+# link start/stop script in run levels
+sudo update-rc.d etcd start 19 2 3 4 5 . stop 19 0 1 6 .
 
 # check installation
 export PATH=$PATH:/usr/local/bin
