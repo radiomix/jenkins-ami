@@ -1,0 +1,51 @@
+# Default values for etcd
+# DOCU: https://github.com/coreos/etcd/blob/master/Documentation/configuration.md
+#
+# default file for etcd providing some environment variables
+#
+# etcd is configurable through command-line flags and environment variables.
+# Options set on the command line take precedence over those from the environment.
+# The format of environment variable for flag -my-flag is ETCD_MY_FLAG. It applies to all flags.
+#
+# -name                   Human-readable name for this member.
+#                         default: "default"
+# -data-dir               Path to the data directory.
+#                         default: "${name}.etcd"
+#
+# -heartbeat-interval     Time (in milliseconds) of a heartbeat interval.
+#                         default: 100
+#
+# -election-timeout       Time (in milliseconds) for an election to timeout.
+#                         default: "100"
+#
+# -listen-peer-urls       List of URLs to listen on for peer traffic.
+#                         default: "http://localhost:2380,http://localhost:7001"
+#
+# -listen-client-url      List of URLs to listen on for client traffic.
+#                         default: "http://localhost:2379,http://localhost:4001"
+#
+# -initial  prefix flags are used in bootstrapping a new member, and ignored when restarting an existing member
+#
+# -discovery prefix flags need to be set when using discovery service
+#
+# -initial-advertise-peer-urls List of this member's peer URLs to advertise to the rest of the cluster.
+#                         These addresses are used for communicating etcd data around the cluster.
+#
+# -initial-cluster        Initial cluster configuration for bootstrapping.
+#                         default: "default=http://localhost:2380,default=http://localhost:7001"
+#
+# -initial-cluster-state Initial cluster state ("new" or "existing").
+#                         default: "new"
+#
+# -initial-cluster-token   Initial cluster token for the etcd cluster during bootstrap.
+#                         default: "etcd-cluster"
+#
+# -advertise-client-urls  List of this member's client URLs to advertise to the rest of the cluster.
+#                         default: "http://localhost:2379,http://localhost:4001"
+#
+# -discovery              Discovery URL used to bootstrap the cluster.
+#                         default: none
+#
+# -debug                  Drop the default log level to DEBUG for all subpackages.
+#                         default: false (INFO for all packages)
+
