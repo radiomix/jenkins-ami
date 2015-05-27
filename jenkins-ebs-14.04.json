@@ -40,7 +40,7 @@
                "install/tools.sh",
                "install/redis.sh",
                "install/ec2-tools.sh",
-               "install/rabitmq.sh",
+               "install/rabbitmq.sh",
                "install/nodes.sh",
                "install/jenkins.sh",
                "install/etcd.sh",
