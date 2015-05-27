@@ -5,7 +5,7 @@
 echo ***INSTALLING TOOLS
 sleep 2
 sudo apt-get update
-sudo apt-get install -y --force-yes curl wget git mosh gcc make lynx unzip docker.io build-essential python golang
+sudo apt-get install -y --force-yes curl wget git mosh gcc make lynx unzip docker.io build-essential python golang tree htop
 which lynx mosh git vi wget unzip docker
 echo ***INSTALLING JAVA 
 sleep 2
