@@ -20,12 +20,12 @@ sudo chmod a+x /etc/init.d/etcd
 sudo mv -v /tmp/etcd.default /etc/default/etcd
 sudo chown root.root /etc/default/etcd
 
-# link start/stop script in run levels
-sudo update-rc.d etcd start 19 2 3 4 5 . stop 19 0 1 6 .
+# don't enable service etcd by default on boot.
+# to enable etcd by default on boot, comment in next line:
+# sudo update-rc.d etcd start 19 2 3 4 5 . stop 19 0 1 6 .
 
 # check installation
 export PATH=$PATH:/usr/local/bin
-service etcd start
 which etcd
 which etcdctl
 #

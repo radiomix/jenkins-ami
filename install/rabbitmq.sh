@@ -11,3 +11,8 @@ wget https://www.rabbitmq.com/rabbitmq-signing-key-public.asc
 sudo apt-key add rabbitmq-signing-key-public.asc
 sudo apt-get install -y rabbitmq-server=$VERSION
 
+# disable service rabbitmq on boot
+# service should be enabled by chef-client run
+sudo update-rc.d  rabbitmq-server disable
+sudo service rabbitmq-server stop
+
