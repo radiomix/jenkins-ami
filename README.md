@@ -29,11 +29,17 @@ We install these tools/packages on the AMI:
  + nodes.js
  + etcd
 
+
+###Services
 The services installed under `install/service.sh` are versioned by a
 variable inside the shell script.
 
-###Services
 Services `jenkins`,`etcd` and  `rabbitmq-server` are not enabled at
 boot time by default. We expect a `chef-client` run to enable these
 services running: 
 `:$ sudo update-rc.d SERVICE start 19 2 3 4 5 . stop 19 0 1 6 .`
+
+###Chef
+As we install `chefdk`, we also install the Chef Starter Kid, together
+with its permissions, expecting file `files/chef-starer.zip` to be
+present. Please put your own starter file in place.

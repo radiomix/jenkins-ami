@@ -33,7 +33,22 @@
             "source": "file/etcd.init",
             "destination": "/tmp/etcd.init"
       },
-      { 
+      {
+          "type": "file",
+            "source": "file/chef-starter.zip",
+            "destination": "/tmp/chef-starter.zip"
+      },
+      {
+          "type": "shell",
+          "inline":[
+            "sudo apt-get update",
+            "sudo apt-get install -y unzip",
+            "pwd",
+            "unzip /tmp/chef-starter.zip",
+            "ls -la"
+          ]
+      },
+      {
       "type":"shell",
            "execute_command": "echo 'ubuntu' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'",
            "scripts":[
